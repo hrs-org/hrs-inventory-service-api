@@ -25,9 +25,9 @@ public class PackageController : ControllerBase
         return Ok(ApiResponse<IEnumerable<PackageResponseDto>>.OkResponse(res, "Packages retrieved successfully"));
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<PackageResponseDto>> GetPackageAsync(int id)
+    public async Task<ActionResult<PackageResponseDto>> GetPackageAsync(string id)
     {
         var res = await _packageService.GetByIdAsync(id);
         return Ok(ApiResponse<PackageResponseDto>.OkResponse(res, "Package retrieved successfully"));
@@ -41,18 +41,18 @@ public class PackageController : ControllerBase
         return Ok(ApiResponse<PackageResponseDto>.OkResponse(created, "Package created successfully"));
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id}")]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult> UpdatePackageAsync(int id, [FromBody] UpdatePackageRequestDto request)
+    public async Task<ActionResult> UpdatePackageAsync(string id, [FromBody] UpdatePackageRequestDto request)
     {
         request.Id = id;
         var updated = await _packageService.UpdateAsync(request);
         return Ok(ApiResponse<PackageResponseDto>.OkResponse(updated, "Package updated successfully"));
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult> DeletePackageAsync(int id)
+    public async Task<ActionResult> DeletePackageAsync(string id)
     {
         await _packageService.DeleteAsync(id);
         return Ok(ApiResponse<string>.OkResponse(null, $"Package {id} deleted successfully"));

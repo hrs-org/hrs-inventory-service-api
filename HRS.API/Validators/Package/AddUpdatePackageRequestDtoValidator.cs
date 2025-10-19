@@ -12,7 +12,7 @@ public class UpdatePackageRequestDtoValidator : PackageRequestDtoBaseValidator<U
     public UpdatePackageRequestDtoValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage("Id must be greater than 0");
+            .NotEmpty().WithMessage("Id is required");
     }
 }
 
@@ -43,7 +43,7 @@ public class PackageItemRequestDtoValidator : AbstractValidator<PackageItemReque
     public PackageItemRequestDtoValidator()
     {
         RuleFor(x => x.ItemId)
-            .GreaterThan(0).WithMessage("ItemId must be greater than 0");
+            .NotEmpty().WithMessage("Id is required");
         RuleFor(x => x.Quantity)
             .GreaterThan(0).WithMessage("Quantity must be greater than 0");
     }

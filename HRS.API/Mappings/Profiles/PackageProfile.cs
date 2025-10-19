@@ -32,14 +32,10 @@ public class PackageProfile : Profile
 
         CreateMap<PackageItemRequestDto, PackageItem>()
             .ForMember(d => d.Id, opt => opt.Ignore())
-            .ForMember(d => d.PackageId, opt => opt.Ignore())
-            .ForMember(d => d.Package, opt => opt.Ignore())
             .ForMember(d => d.Item, opt => opt.Ignore());
 
         CreateMap<PackageRateRequestDto, PackageRate>()
             .ForMember(d => d.Id, opt => opt.Ignore())
-            .ForMember(d => d.PackageId, opt => opt.Ignore())
-            .ForMember(d => d.Package, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.CreatedById, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())

@@ -2,7 +2,7 @@ namespace HRS.API.Contracts.DTOs.Package;
 
 public class PackageItemRequestDto
 {
-    public int ItemId { get; set; }
+    public string ItemId { get; set; } = string.Empty;
     public int Quantity { get; set; } = 1;
 }
 
@@ -29,5 +29,5 @@ public class AddPackageRequestDto : PackageRequestDto
 
 public class UpdatePackageRequestDto : PackageRequestDto
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 }
