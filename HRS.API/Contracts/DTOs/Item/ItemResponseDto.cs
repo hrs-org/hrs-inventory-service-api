@@ -2,7 +2,7 @@ namespace HRS.API.Contracts.DTOs.Item;
 
 public class ItemResponseDto
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int Quantity { get; set; }
@@ -14,7 +14,7 @@ public class ItemResponseDto
 
 public class ItemRateResponseDto
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public int MinDays { get; set; }
     public decimal DailyRate { get; set; }
     public bool IsActive { get; set; }

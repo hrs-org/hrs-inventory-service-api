@@ -36,6 +36,6 @@ public class AddItemRequestDto : ParentItemRequestDto
 
 public class UpdateItemRequestDto : ParentItemRequestDto
 {
-    public int? Id { get; set; }
+    public string? Id { get; set; }
     public ICollection<UpdateItemRequestDto>? Children { get; set; }
 }

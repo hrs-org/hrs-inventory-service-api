@@ -23,8 +23,8 @@ public class UpdateItemRequestDtoValidator : AbstractValidator<UpdateItemRequest
         ParentItemRequestValidatorHelper.AddCommonRules(this);
 
         RuleFor(x => x.Id)
-            .NotNull().WithMessage("Item Id is required")
-            .GreaterThan(0).WithMessage("Item Id must be greater than 0");
+            .NotEmpty().WithMessage("Item Id is required")
+            .Matches(@"^[0-9a-fA-F]{24}$").WithMessage("Item Id must be a valid ObjectId");
 
         RuleForEach(x => x.Children)
             .SetValidator(new ItemChildRequestDtoValidator());

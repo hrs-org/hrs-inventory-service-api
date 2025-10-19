@@ -6,8 +6,8 @@ namespace HRS.Domain.Entities;
 public class Item
 {
     [BsonId]
-    [BsonRepresentation(BsonType.Int32)]
-    public int Id { get; set; }
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
     [BsonElement("name")]
     [BsonRequired]
@@ -26,15 +26,17 @@ public class Item
 
     [BsonElement("parentId")]
     [BsonIgnoreIfNull]
-    public int? ParentId { get; set; }
+    public string? ParentId { get; set; }
 
     [BsonIgnore]
     public Item? Parent { get; set; }
 
-    [BsonIgnore]
+    [BsonElement("children")]
+    [BsonIgnoreIfNull]
     public ICollection<Item> Children { get; set; } = [];
 
-    [BsonIgnore]
+    [BsonElement("rates")]
+    [BsonIgnoreIfNull]
     public ICollection<ItemRate> Rates { get; set; } = [];
 
     [BsonElement("createdById")]

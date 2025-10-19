@@ -25,9 +25,9 @@ public class ItemController : ControllerBase
         return Ok(ApiResponse<List<ItemResponseDto>>.OkResponse(res.ToList()));
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult<ItemResponseDto>> GetItemAsync(int id)
+    public async Task<ActionResult<ItemResponseDto>> GetItemAsync(string id)
     {
         var res = await _itemService.GetItemAsync(id);
         return Ok(ApiResponse<ItemResponseDto>.OkResponse(res));
@@ -46,18 +46,18 @@ public class ItemController : ControllerBase
         );
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id}")]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult> UpdateItemAsync(int id, [FromBody] UpdateItemRequestDto request)
+    public async Task<ActionResult> UpdateItemAsync(string id, [FromBody] UpdateItemRequestDto request)
     {
         request.Id = id;
         await _itemService.UpdateAsync(request);
         return Ok(ApiResponse<object>.OkResponse(null, "Item updated successfully"));
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult> DeleteItemAsync(int id)
+    public async Task<ActionResult> DeleteItemAsync(string id)
     {
         await _itemService.DeleteAsync(id);
         return Ok(ApiResponse<object>.OkResponse(null, "Item deleted successfully"));

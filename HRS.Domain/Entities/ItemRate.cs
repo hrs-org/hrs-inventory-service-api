@@ -1,33 +1,46 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using HRS.Shared.Core.Dtos;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace HRS.Domain.Entities;
 
-[Table("ItemRates")]
 public class ItemRate
 {
-    [Key] public int Id { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-    [Required] public int ItemId { get; set; }
+    [BsonIgnore]
+    public Item? Item { get; set; }
 
-    [ForeignKey(nameof(ItemId))] public Item Item { get; set; } = null!;
+    [BsonElement("minDays")]
+    public int MinDays { get; set; }
 
-    [Required][Range(1, int.MaxValue)] public int MinDays { get; set; }
-
-    [Required]
-    [Range(0.0, double.MaxValue)]
+    [BsonElement("dailyRate")]
+    [BsonRepresentation(BsonType.Decimal128)]
     public decimal DailyRate { get; set; }
 
-    [Required] public bool IsActive { get; set; } = true;
+    [BsonElement("isActive")]
+    public bool IsActive { get; set; } = true;
 
-    [Required] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [BsonElement("createdAt")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [BsonElement("createdById")]
     public int CreatedById { get; set; }
-    [ForeignKey(nameof(CreatedById))] public UserResponseDto CreatedBy { get; set; } = null!;
 
+    [BsonIgnore]
+    public object? CreatedBy { get; set; }
+
+    [BsonElement("updatedById")]
+    [BsonIgnoreIfNull]
     public int? UpdatedById { get; set; }
-    [ForeignKey(nameof(UpdatedById))] public UserResponseDto? UpdatedBy { get; set; }
 
+    [BsonIgnore]
+    public object? UpdatedBy { get; set; }
+
+    [BsonElement("updatedAt")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    [BsonIgnoreIfNull]
     public DateTime? UpdatedAt { get; set; }
 }

@@ -11,7 +11,7 @@ public class UpdateItemRequestDtoValidatorTests
     [Fact]
     public void Should_Have_Error_When_Model_Is_Not_Valid()
     {
-        var model = new UpdateItemRequestDto { Id = 0, Name = "", Description = "", Quantity = -1, Price = -1 };
+        var model = new UpdateItemRequestDto { Id = "", Name = "", Description = "", Quantity = -1, Price = -1 };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.Id);
         result.ShouldHaveValidationErrorFor(x => x.Name);
@@ -25,7 +25,7 @@ public class UpdateItemRequestDtoValidatorTests
         var child = new UpdateItemRequestDto { Name = "", Description = "", Quantity = -1, Price = -1 };
         var model = new UpdateItemRequestDto
         {
-            Id = 1,
+            Id = "507f1f77bcf86cd799439011",
             Name = "Parent",
             Description = "Parent Desc",
             Quantity = 1,
@@ -44,7 +44,7 @@ public class UpdateItemRequestDtoValidatorTests
         var child = new UpdateItemRequestDto { Name = "Child", Description = "Child Desc", Quantity = 1, Price = 1 };
         var model = new UpdateItemRequestDto
         {
-            Id = 1,
+            Id = "507f1f77bcf86cd799439011",
             Name = "Parent",
             Description = "Parent Desc",
             Quantity = 1,
