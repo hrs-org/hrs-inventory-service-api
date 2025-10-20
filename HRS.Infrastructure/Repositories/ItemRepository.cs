@@ -24,34 +24,11 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
         return await _collection.Find(filter).ToListAsync();
     }
 
-    public async Task<Item?> GetByIdWithChildrenAsync(string id)
-    {
-        // Use aggregation to load children
-        var pipeline = new[]
-        {
-            new BsonDocument("$match", new BsonDocument("_id", new ObjectId(id))),
-            new BsonDocument("$lookup", new BsonDocument
-            {
-                { "from", "Items" },
-                { "localField", "_id" },
-                { "foreignField", "parentId" },
-                { "as", "children" }
-            })
-        };
-
-        var result = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
-
-        if (result == null)
-            return null;
-
-        return BsonSerializer.Deserialize<Item>(result);
-    }
-
     public async Task<Item?> GetParentItemAsync(string childId)
     {
         var child = await GetByIdAsync(childId);
         if (child?.ParentId == null) return null;
-        
+
         return await GetByIdAsync(child.ParentId);
     }
 
@@ -70,34 +47,6 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
         filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
 
         return await _collection.Find(filter).ToListAsync();
-    }
-
-    public async Task<Item?> GetByIdWithParentAsync(string id)
-    {
-        // Use aggregation to load parent
-        var pipeline = new[]
-        {
-            new BsonDocument("$match", new BsonDocument("_id", new ObjectId(id))),
-            new BsonDocument("$lookup", new BsonDocument
-            {
-                { "from", "Items" },
-                { "localField", "parentId" },
-                { "foreignField", "_id" },
-                { "as", "parent" }
-            }),
-            new BsonDocument("$unwind", new BsonDocument
-            {
-                { "path", "$parent" },
-                { "preserveNullAndEmptyArrays", true }
-            })
-        };
-
-        var result = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
-
-        if (result == null)
-            return null;
-
-        return BsonSerializer.Deserialize<Item>(result);
     }
 
     public async Task RemoveItem(Item entity)

@@ -27,6 +27,16 @@ public class UserContextService : IUserContextService
         return int.TryParse(userIdClaim, out var userId) ? userId : 0;
     }
 
+    public int GetStoreId()
+    {
+        var storeIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("storeId")?.Value;
+        if (string.IsNullOrEmpty(storeIdClaim) || !int.TryParse(storeIdClaim, out var storeId))
+        {
+            throw new UnauthorizedAccessException("Valid Store ID not found in user claims");
+        }
+        return storeId;
+    }
+
     public Task<UserResponseDto> GetUserAsync()
     {
         var userId = GetUserId();
