@@ -19,10 +19,10 @@ public class ItemController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult<List<ItemResponseDto>>> GetItemsAsync()
+    public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems([FromQuery] string storeId)
     {
-        var res = await _itemService.GetRootItemsAsync();
-        return Ok(ApiResponse<List<ItemResponseDto>>.OkResponse(res.ToList()));
+        var items = await _itemService.GetRootItemsAsync(storeId);
+        return Ok(ApiResponse<IEnumerable<ItemResponseDto>>.OkResponse(items));
     }
 
     [HttpGet("{id}")]

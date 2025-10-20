@@ -19,9 +19,9 @@ public class PackageController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<IEnumerable<PackageResponseDto>>> GetPackagesAsync()
+    public async Task<ActionResult<IEnumerable<PackageResponseDto>>> GetPackagesAsync([FromQuery] string storeId)
     {
-        var res = await _packageService.GetAllAsync();
+        var res = await _packageService.GetAllAsync(storeId);
         return Ok(ApiResponse<IEnumerable<PackageResponseDto>>.OkResponse(res, "Packages retrieved successfully"));
     }
 

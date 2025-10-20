@@ -37,6 +37,10 @@ public class Package
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [BsonElement("storeId")]
+    [BsonRequired]
+    public string StoreId { get; set; } = null!;
+
     [BsonElement("updatedById")]
     [BsonIgnoreIfNull]
     public int? UpdatedById { get; set; }

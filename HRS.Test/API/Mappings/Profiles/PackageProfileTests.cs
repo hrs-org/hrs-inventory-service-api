@@ -30,8 +30,8 @@ public class PackageProfileTests
             BasePrice = 100,
             Items = new List<PackageItemRequestDto>
             {
-                new() { ItemId = 1, Quantity = 2 },
-                new() { ItemId = 2, Quantity = 1 }
+                new() { ItemId = "1", Quantity = 2 },
+                new() { ItemId = "2", Quantity = 1 }
             },
             Rates = new List<PackageRateRequestDto>
             {
@@ -44,7 +44,7 @@ public class PackageProfileTests
         var entity = _mapper.Map<Package>(dto);
 
         // Assert
-        entity.Id.Should().Be(0);
+    entity.Id.Should().NotBeNullOrEmpty();
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
         entity.BasePrice.Should().Be(dto.BasePrice);
@@ -56,13 +56,13 @@ public class PackageProfileTests
     public void Should_Map_Package_To_PackageResponseDto()
     {
         // Arrange
-        var item1 = new PackageItem { Id = 1, ItemId = 1, Quantity = 2, Item = new Item { Name = "Tent" } };
-        var item2 = new PackageItem { Id = 2, ItemId = 2, Quantity = 1, Item = new Item { Name = "Stove" } };
-        var rate1 = new PackageRate { Id = 1, MinDays = 1, DailyRate = 50, IsActive = true };
-        var rate2 = new PackageRate { Id = 2, MinDays = 3, DailyRate = 40, IsActive = false };
+    var item1 = new PackageItem { Id = "1", ItemId = "1", Quantity = 2, Item = new Item { Name = "Tent" } };
+    var item2 = new PackageItem { Id = "2", ItemId = "2", Quantity = 1, Item = new Item { Name = "Stove" } };
+    var rate1 = new PackageRate { Id = "1", MinDays = 1, DailyRate = 50, IsActive = true };
+    var rate2 = new PackageRate { Id = "2", MinDays = 3, DailyRate = 40, IsActive = false };
         var entity = new Package
         {
-            Id = 10,
+            Id = "10",
             Name = "Adventure Package",
             Description = "A fun package",
             BasePrice = 100,
@@ -74,7 +74,7 @@ public class PackageProfileTests
         var dto = _mapper.Map<PackageResponseDto>(entity);
 
         // Assert
-        dto.Id.Should().Be(10);
+    dto.Id.Should().Be("10");
         dto.Name.Should().Be("Adventure Package");
         dto.Items.Should().HaveCount(2);
         dto.Items.First().ItemName.Should().Be("Tent");
@@ -85,13 +85,13 @@ public class PackageProfileTests
     public void Should_Map_PackageItemRequestDto_To_PackageItem()
     {
         // Arrange
-        var dto = new PackageItemRequestDto { ItemId = 5, Quantity = 3 };
+    var dto = new PackageItemRequestDto { ItemId = "5", Quantity = 3 };
 
         // Act
         var entity = _mapper.Map<PackageItem>(dto);
 
         // Assert
-        entity.ItemId.Should().Be(5);
+    entity.ItemId.Should().Be("5");
         entity.Quantity.Should().Be(3);
     }
 
@@ -114,7 +114,7 @@ public class PackageProfileTests
     public void Should_Map_PackageRate_To_PackageRateResponseDto()
     {
         // Arrange
-        var entity = new PackageRate { Id = 7, MinDays = 2, DailyRate = 55.5m, IsActive = false };
+    var entity = new PackageRate { Id = "7", MinDays = 2, DailyRate = 55.5m, IsActive = false };
 
         // Act
         var dto = _mapper.Map<PackageRateResponseDto>(entity);
@@ -129,13 +129,13 @@ public class PackageProfileTests
     public void Should_Map_PackageItem_To_PackageItemResponseDto()
     {
         // Arrange
-        var entity = new PackageItem { Id = 3, ItemId = 8, Quantity = 4, Item = new Item { Name = "Lamp" } };
+    var entity = new PackageItem { Id = "3", ItemId = "8", Quantity = 4, Item = new Item { Name = "Lamp" } };
 
         // Act
         var dto = _mapper.Map<PackageItemResponseDto>(entity);
 
         // Assert
-        dto.ItemId.Should().Be(8);
+    dto.ItemId.Should().Be("8");
         dto.Quantity.Should().Be(4);
         dto.ItemName.Should().Be("Lamp");
     }

@@ -26,12 +26,13 @@ public class ItemRateRequestDto
 
 public class ParentItemRequestDto : ItemRequestDto
 {
+    [Required] public required string StoreId { get; set; }
     public ICollection<ItemRateRequestDto>? Rates { get; set; }
 }
 
 public class AddItemRequestDto : ParentItemRequestDto
 {
-    public ICollection<AddItemRequestDto>? Children { get; set; }
+    public ICollection<ItemRequestDto>? Children { get; set; }
 }
 
 public class UpdateItemRequestDto : ParentItemRequestDto

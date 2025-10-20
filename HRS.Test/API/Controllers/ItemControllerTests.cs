@@ -19,14 +19,18 @@ public class ItemControllerTests
     }
 
     [Fact]
-    public async Task GetItemsAsync_ReturnsOkWithList()
+    public async Task GetRootItems_ReturnsOkWithList()
     {
         // Arrange
-        var items = new List<ItemResponseDto> { new() { Id = 1 }, new() { Id = 2 } };
-        _itemService.GetRootItemsAsync().Returns(items);
+        var storeId = "store1";
+        var items = new List<ItemResponseDto> {
+            new() { Id = "1", StoreId = storeId },
+            new() { Id = "2", StoreId = storeId }
+        };
+        _itemService.GetRootItemsAsync(storeId).Returns(items);
 
         // Act
-        var result = await _controller.GetItemsAsync();
+        var result = await _controller.GetRootItems(storeId);
 
         // Assert
         var okResult = result.Result as OkObjectResult;
@@ -39,11 +43,11 @@ public class ItemControllerTests
     public async Task GetItemAsync_ReturnsOkWithItem()
     {
         // Arrange
-        var item = new ItemResponseDto { Id = 1 };
-        _itemService.GetItemAsync(1).Returns(item);
+        var item = new ItemResponseDto { Id = "1", StoreId = "store1" };
+        _itemService.GetItemAsync("1").Returns(item);
 
         // Act
-        var result = await _controller.GetItemAsync(1);
+        var result = await _controller.GetItemAsync("1");
 
         // Assert
         var okResult = result.Result as OkObjectResult;
@@ -56,8 +60,8 @@ public class ItemControllerTests
     public async Task AddNewItem_ReturnsCreatedAtAction()
     {
         // Arrange
-        var addDto = new AddItemRequestDto { Name = "Test", Description = "This is Test", Quantity = 10, Price = 10.5m };
-        var created = new ItemResponseDto { Id = 1, Name = "Test" };
+        var addDto = new AddItemRequestDto { Name = "Test", Description = "This is Test", Quantity = 10, Price = 10.5m, StoreId = "store1" };
+        var created = new ItemResponseDto { Id = "1", Name = "Test", StoreId = "store1" };
         _itemService.CreateAsync(addDto).Returns(created);
 
         // Act
@@ -81,6 +85,7 @@ public class ItemControllerTests
             Description = "4-person tent",
             Quantity = 5,
             Price = 100m,
+            StoreId = "store1",
             Rates = new List<ItemRateRequestDto>
             {
                 new() { MinDays = 1, DailyRate = 20m, IsActive = true },
@@ -89,8 +94,9 @@ public class ItemControllerTests
         };
         var created = new ItemResponseDto
         {
-            Id = 10,
+            Id = "10",
             Name = "Tent",
+            StoreId = "store1",
             Rates = new List<ItemRateResponseDto>
             {
                 new() { MinDays = 1, DailyRate = 20m, IsActive = true },
@@ -155,10 +161,10 @@ public class ItemControllerTests
     public async Task DeleteItemAsync_ReturnsOkWithApiResponse()
     {
         // Arrange
-        _itemService.DeleteAsync(1).Returns(Task.CompletedTask);
+        _itemService.DeleteAsync("1").Returns(Task.CompletedTask);
 
         // Act
-        var result = await _controller.DeleteItemAsync(1);
+        var result = await _controller.DeleteItemAsync("1");
 
         // Assert
         var okResult = result as OkObjectResult;
@@ -166,14 +172,14 @@ public class ItemControllerTests
         var apiResponse = okResult.Value as dynamic;
         ((object)apiResponse?.Data!).Should().BeNull();
         ((string)apiResponse?.Message!).Should().Be("Item deleted successfully");
-        await _itemService.Received(1).DeleteAsync(1);
+        await _itemService.Received(1).DeleteAsync("1");
     }
 
     [Fact]
     public async Task SearchItemsAsync_WithKeyword_ReturnsOkWithResults()
     {
         // Arrange
-        var dtos = new List<ItemResponseDto> { new() { Id = 1, Name = "Trekking Pole" } };
+        var dtos = new List<ItemResponseDto> { new() { Id = "1", Name = "Trekking Pole", StoreId = "store1" } };
         _itemService.SearchItemsAsync("Trekking Pole").Returns(dtos);
 
         // Act
@@ -192,8 +198,8 @@ public class ItemControllerTests
         // Arrange
         var dtos = new List<ItemResponseDto>
         {
-            new() { Id = 1, Name = "Trekking Pole" },
-            new() { Id = 2, Name = "Tent" }
+            new() { Id = "1", Name = "Trekking Pole", StoreId = "store1" },
+            new() { Id = "2", Name = "Tent", StoreId = "store1" }
         };
         _itemService.SearchItemsAsync(null).Returns(dtos);
 

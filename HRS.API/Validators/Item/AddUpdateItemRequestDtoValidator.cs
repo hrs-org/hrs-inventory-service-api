@@ -8,7 +8,12 @@ public class AddItemRequestDtoValidator : AbstractValidator<AddItemRequestDto>
     public AddItemRequestDtoValidator()
     {
         ItemRequestValidatorHelper.AddCommonRules(this);
-        ParentItemRequestValidatorHelper.AddCommonRules(this);
+
+        RuleFor(x => x.StoreId)
+            .NotEmpty().WithMessage("Store Id is required");
+
+        RuleForEach(x => x.Rates)
+            .SetValidator(new ItemRateRequestDtoValidator());
 
         RuleForEach(x => x.Children)
             .SetValidator(new ItemChildRequestDtoValidator());
@@ -52,6 +57,9 @@ public static class ParentItemRequestValidatorHelper
 {
     public static void AddCommonRules<T>(AbstractValidator<T> validator) where T : ParentItemRequestDto
     {
+        validator.RuleFor(x => x.StoreId)
+            .NotEmpty().WithMessage("Store Id is required");
+
         validator.RuleForEach(x => x.Rates)
             .SetValidator(new ItemRateRequestDtoValidator());
     }
@@ -61,7 +69,17 @@ public class ItemChildRequestDtoValidator : AbstractValidator<ItemRequestDto>
 {
     public ItemChildRequestDtoValidator()
     {
-        ItemRequestValidatorHelper.AddCommonRules(this);
+        // For children, only validate the essential fields
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Item name is required");
+
+        RuleFor(x => x.Quantity)
+            .NotNull().WithMessage("Item Quantity is required")
+            .GreaterThanOrEqualTo(0).WithMessage("Item Quantity cannot be negative");
+
+        RuleFor(x => x.Price)
+            .NotNull().WithMessage("Item Price is required")
+            .GreaterThanOrEqualTo(0).WithMessage("Item Price cannot be negative");
     }
 }
 

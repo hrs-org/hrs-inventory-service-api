@@ -27,10 +27,42 @@ public class ItemService : IItemService
         return _mapper.Map<ItemResponseDto>(item);
     }
 
-    public async Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync()
+    public async Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync(string storeId)
     {
-        var items = await _itemRepository.GetRootItemsAsync();
+        var items = await _itemRepository.GetRootItemsAsync(storeId);
         return _mapper.Map<IEnumerable<ItemResponseDto>>(items);
+    }
+
+    private static void ProcessChildren(Item entity, int userId)
+    {
+        if (entity.Children.Count <= 0) return;
+
+        entity.Quantity = entity.Children.Sum(c => c.Quantity);
+
+        foreach (var child in entity.Children)
+        {
+            child.CreatedById = userId;
+            child.CreatedAt = DateTime.UtcNow;
+            child.UpdatedById = userId;
+            child.UpdatedAt = DateTime.UtcNow;
+            child.StoreId = entity.StoreId;
+        }
+    }
+
+    private void ProcessRates(Item entity, ICollection<ItemRateRequestDto>? rates, int userId)
+    {
+        if (rates == null || rates.Count <= 0) return;
+
+        entity.Rates = rates.Select(rateDto =>
+        {
+            var rate = _mapper.Map<ItemRate>(rateDto);
+            rate.CreatedById = userId;
+            rate.CreatedAt = DateTime.UtcNow;
+            rate.UpdatedById = userId;
+            rate.UpdatedAt = DateTime.UtcNow;
+            rate.IsActive = true;
+            return rate;
+        }).ToList();
     }
 
     public async Task<ItemResponseDto> CreateAsync(AddItemRequestDto dto)
@@ -41,37 +73,14 @@ public class ItemService : IItemService
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedById = user.Id;
         entity.UpdatedAt = DateTime.UtcNow;
+        entity.StoreId = dto.StoreId;
 
-        if (dto.Children != null && dto.Children.Count > 0)
-        {
-            entity.Children = dto.Children.Select(childDto =>
-            {
-                var child = _mapper.Map<Item>(childDto);
-                child.CreatedById = user.Id;
-                child.CreatedAt = DateTime.UtcNow;
-                child.UpdatedById = user.Id;
-                child.UpdatedAt = DateTime.UtcNow;
-                return child;
-            }).ToList();
-            entity.Quantity = entity.Children.Sum(c => c.Quantity);
-        }
-
-        // 嵌入 Rates
-        if (dto.Rates != null && dto.Rates.Count > 0)
-        {
-            entity.Rates = dto.Rates.Select(rateDto =>
-            {
-                var rate = _mapper.Map<ItemRate>(rateDto);
-                rate.CreatedById = user.Id;
-                rate.CreatedAt = DateTime.UtcNow;
-                rate.IsActive = true;
-                return rate;
-            }).ToList();
-        }
+        ProcessChildren(entity, user.Id);
+        ProcessRates(entity, dto.Rates, user.Id);
 
         await _itemRepository.AddAsync(entity);
-        var savedItem = await _itemRepository.GetByIdAsync(entity.Id);
-        return _mapper.Map<ItemResponseDto>(savedItem);
+        var createdItem = await _itemRepository.GetByIdAsync(entity.Id);
+        return _mapper.Map<ItemResponseDto>(createdItem);
     }
 
     public async Task<ItemResponseDto> UpdateAsync(UpdateItemRequestDto dto)
@@ -118,13 +127,13 @@ public class ItemService : IItemService
                     CreatedById = user.Id,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedById = user.Id,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
+                    StoreId = item.StoreId
                 };
                 item.Children.Add(newChild);
             }
             item.Quantity = item.Children.Count > 0 ? item.Children.Sum(c => c.Quantity) : 0;
         }
-        // Rates 直接嵌入
         if (dto.Rates != null && dto.Rates.Count > 0)
         {
             item.Rates = dto.Rates.Select(rateDto =>
@@ -153,12 +162,18 @@ public class ItemService : IItemService
         return _mapper.Map<IEnumerable<ItemResponseDto>>(items);
     }
 
+    public async Task<ItemResponseDto> GetParentItemAsync(string childId)
+    {
+        var parentItem = await _itemRepository.GetParentItemAsync(childId) ?? 
+            throw new KeyNotFoundException("Parent item not found");
+        return _mapper.Map<ItemResponseDto>(parentItem);
+    }
+
     public async Task<decimal> GetItemRateAsync(string itemId, int rentalDays)
     {
         var item = await _itemRepository.GetByIdAsync(itemId) ?? throw new KeyNotFoundException(ItemNotFound);
         if (item.Rates == null || item.Rates.Count == 0)
             throw new InvalidOperationException("No rates found for this item");
-        // 找出 minDays <= rentalDays 且最大的 minDays
         var rate = item.Rates
             .Where(r => r.IsActive && r.MinDays <= rentalDays)
             .OrderByDescending(r => r.MinDays)

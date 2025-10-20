@@ -15,9 +15,12 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
         _collection = context.Database.GetCollection<Item>("Items");
     }
 
-    public async Task<IEnumerable<Item>> GetRootItemsAsync()
+    public async Task<IEnumerable<Item>> GetRootItemsAsync(string storeId)
     {
-        var filter = Builders<Item>.Filter.Eq(i => i.ParentId, null);
+        var filter = Builders<Item>.Filter.And(
+            Builders<Item>.Filter.Eq(i => i.ParentId, null),
+            Builders<Item>.Filter.Eq(i => i.StoreId, storeId)
+        );
         return await _collection.Find(filter).ToListAsync();
     }
 
@@ -44,19 +47,27 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
         return BsonSerializer.Deserialize<Item>(result);
     }
 
+    public async Task<Item?> GetParentItemAsync(string childId)
+    {
+        var child = await GetByIdAsync(childId);
+        if (child?.ParentId == null) return null;
+        
+        return await GetByIdAsync(child.ParentId);
+    }
+
     public async Task<IEnumerable<Item>> SearchAsync(string? keyword)
     {
         var filterBuilder = Builders<Item>.Filter;
         FilterDefinition<Item> filter;
 
-        if (string.IsNullOrWhiteSpace(keyword))
+        var filters = new List<FilterDefinition<Item>>();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
         {
-            filter = filterBuilder.Empty;
+            filters.Add(filterBuilder.Regex(i => i.Name, new MongoDB.Bson.BsonRegularExpression(keyword, "i")));
         }
-        else
-        {
-            filter = filterBuilder.Regex(i => i.Name, new MongoDB.Bson.BsonRegularExpression(keyword, "i"));
-        }
+
+        filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
 
         return await _collection.Find(filter).ToListAsync();
     }

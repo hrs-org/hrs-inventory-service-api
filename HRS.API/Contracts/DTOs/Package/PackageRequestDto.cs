@@ -18,6 +18,7 @@ public class PackageRequestDto
     public required string Name { get; set; }
     public string? Description { get; set; } = string.Empty;
     public decimal BasePrice { get; set; }
+    public required string StoreId { get; set; }
 
     public ICollection<PackageItemRequestDto>? Items { get; set; }
     public ICollection<PackageRateRequestDto>? Rates { get; set; }

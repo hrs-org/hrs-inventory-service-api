@@ -4,7 +4,7 @@ namespace HRS.Domain.Interfaces;
 
 public interface IPackageRepository : ICrudRepository<Package>
 {
-    Task<IEnumerable<Package>> GetAllWithDetailsAsync();
+    Task<IEnumerable<Package>> GetAllWithDetailsAsync(string storeId);
     Task<Package?> GetByIdWithDetailsAsync(string id);
     Task<Package?> GetByIdWithItemsAsync(string id);
     Task<object> UpdateAsync(Package package, string id);

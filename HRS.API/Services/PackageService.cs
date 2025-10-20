@@ -25,9 +25,9 @@ public class PackageService : IPackageService
         _packageRepository = packageRepository;
     }
 
-    public async Task<IEnumerable<PackageResponseDto>> GetAllAsync()
+    public async Task<IEnumerable<PackageResponseDto>> GetAllAsync(string storeId)
     {
-        var packages = await _packageRepository.GetAllWithDetailsAsync();
+        var packages = await _packageRepository.GetAllWithDetailsAsync(storeId);
         return _mapper.Map<IEnumerable<PackageResponseDto>>(packages);
     }
 

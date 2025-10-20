@@ -39,6 +39,10 @@ public class Item
     [BsonIgnoreIfNull]
     public ICollection<ItemRate> Rates { get; set; } = [];
 
+    [BsonElement("storeId")]
+    [BsonRequired]
+    public string StoreId { get; set; } = null!;
+
     [BsonElement("createdById")]
     public int CreatedById { get; set; }
 
