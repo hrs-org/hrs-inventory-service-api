@@ -150,6 +150,12 @@ public class ItemService : IItemService
         return _mapper.Map<ItemResponseDto>(updatedItem);
     }
 
+    public async Task UpdateQuantityAsync(string id, int quantity)
+    {
+        var item = await _itemRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(ItemNotFound);
+        await _itemRepository.UpdateQuantityAsync(id, item.Quantity + quantity);
+    }
+
     public async Task DeleteAsync(string id)
     {
         var item = await _itemRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(ItemNotFound);
@@ -164,7 +170,7 @@ public class ItemService : IItemService
 
     public async Task<ItemResponseDto> GetParentItemAsync(string childId)
     {
-        var parentItem = await _itemRepository.GetParentItemAsync(childId) ?? 
+        var parentItem = await _itemRepository.GetParentItemAsync(childId) ??
             throw new KeyNotFoundException("Parent item not found");
         return _mapper.Map<ItemResponseDto>(parentItem);
     }

@@ -8,6 +8,7 @@ public interface IItemService
     Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync(string storeId);
     Task<ItemResponseDto> CreateAsync(AddItemRequestDto dto);
     Task<ItemResponseDto> UpdateAsync(UpdateItemRequestDto dto);
+    Task UpdateQuantityAsync(string id, int quantity);
     Task DeleteAsync(string id);
     Task<decimal> GetItemRateAsync(string itemId, int rentalDays);
     Task<IEnumerable<ItemResponseDto>> SearchItemsAsync(string? keyword);

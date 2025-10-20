@@ -55,6 +55,14 @@ public class ItemController : ControllerBase
         return Ok(ApiResponse<object>.OkResponse(null, "Item updated successfully"));
     }
 
+    [HttpPut("{id}/quantity")]
+    [Authorize(Roles = "Admin, Manager")]
+    public async Task<ActionResult> UpdateItemQuantityAsync(string id, [FromQuery] int quantity)
+    {
+        await _itemService.UpdateQuantityAsync(id, quantity);
+        return Ok(ApiResponse<object>.OkResponse(null, "Item quantity updated successfully"));
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin, Manager")]
     public async Task<ActionResult> DeleteItemAsync(string id)

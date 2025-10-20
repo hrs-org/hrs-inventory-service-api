@@ -40,3 +40,10 @@ public class UpdateItemRequestDto : ParentItemRequestDto
     public string? Id { get; set; }
     public ICollection<UpdateItemRequestDto>? Children { get; set; }
 }
+
+public class UpdateItemQuantityRequestDto
+{
+    [Required] public string? Id { get; set; }
+
+    [Required] public required int Quantity { get; set; }
+}

@@ -12,6 +12,7 @@ public interface ICrudRepository<T> where T : class
     Task AddRangeAsync(IEnumerable<T> entities);
 
     Task UpdateAsync(T entity, object id);
+    Task UpdateQuantityAsync(object id, int quantity);
     Task RemoveAsync(object id);
     Task RemoveRangeAsync(IEnumerable<object> ids);
 }

@@ -49,6 +49,13 @@ public class CrudRepository<T> : ICrudRepository<T> where T : class
         var filter = Builders<T>.Filter.Eq("_id", objectId);
         await _collection.ReplaceOneAsync(filter, entity);
     }
+    public virtual async Task UpdateQuantityAsync(object id, int quantity)
+    {
+        var objectId = ConvertToObjectId(id);
+        var filter = Builders<T>.Filter.Eq("_id", objectId);
+        var update = Builders<T>.Update.Set("Quantity", quantity);
+        await _collection.UpdateOneAsync(filter, update);
+    }
 
     public virtual async Task RemoveAsync(object id)
     {
