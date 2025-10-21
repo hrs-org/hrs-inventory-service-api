@@ -38,7 +38,6 @@ public class ItemService : IItemService
         if (entity.Children.Count <= 0) return;
 
         entity.Quantity = entity.Children.Sum(c => c.Quantity);
-        entity.ParentId = entity.Id;
 
         foreach (var child in entity.Children)
         {
@@ -76,6 +75,7 @@ public class ItemService : IItemService
         entity.UpdatedById = user.Id;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.StoreId = _userContextService.GetStoreId();
+        entity.ParentId = entity.Id;
 
         ProcessChildren(entity, user.Id);
         ProcessRates(entity, dto.Rates, user.Id);
