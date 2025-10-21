@@ -12,5 +12,4 @@ public interface IItemService
     Task DeleteAsync(string id);
     Task<decimal> GetItemRateAsync(string itemId, int rentalDays);
     Task<IEnumerable<ItemResponseDto>> SearchItemsAsync(string? keyword);
-    Task<ItemResponseDto> GetParentItemAsync(string childId);
 }

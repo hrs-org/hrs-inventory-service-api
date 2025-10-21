@@ -38,6 +38,7 @@ public class ItemService : IItemService
         if (entity.Children.Count <= 0) return;
 
         entity.Quantity = entity.Children.Sum(c => c.Quantity);
+        entity.ParentId = entity.Id;
 
         foreach (var child in entity.Children)
         {
@@ -46,6 +47,7 @@ public class ItemService : IItemService
             child.UpdatedById = userId;
             child.UpdatedAt = DateTime.UtcNow;
             child.StoreId = entity.StoreId;
+            child.ParentId = entity.Id;
         }
     }
 
@@ -128,6 +130,7 @@ public class ItemService : IItemService
                     CreatedAt = DateTime.UtcNow,
                     UpdatedById = user.Id,
                     UpdatedAt = DateTime.UtcNow,
+                    ParentId = item.Id,
                     StoreId = item.StoreId
                 };
                 item.Children.Add(newChild);
