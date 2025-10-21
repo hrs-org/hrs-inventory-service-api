@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: hrs-inventory-service
+    namespace: inventory
+    labels:
+        app: hrs-inventory-service
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: hrs-inventory-service
+    template:
+        metadata:
+            labels:
+                app: hrs-inventory-service
+        spec:
+            containers:
+                - name: hrs-inventory-service
+                  image: __ACR_NAME__.azurecr.io/hrs-inventory-service:__IMAGE_TAG__
+                  imagePullPolicy: Always
+                  ports:
+                      - containerPort: 8080
+                        name: http
+                  env:
+                      - name: ASPNETCORE_ENVIRONMENT
+                        value: "Production"
+                      - name: ASPNETCORE_URLS
+                        value: "http://+:8080"
+                      # MongoDB Configuration
+                      - name: ConnectionStrings__MongoDb
+                        value: "__MONGODB_CONNECTION_STRING__"
+                      # JWT Configuration
+                      - name: Jwt__Key
+                        value: "__JWT_SECRET_KEY__"
+                      - name: Jwt__Issuer
+                        value: "__JWT_ISSUER__"
+                      - name: Jwt__Audience
+                        value: "__JWT_AUDIENCE__"
+                      # CORS Configuration
+                      - name: AllowedOrigins
+                        value: "__ALLOWED_ORIGINS__"
+                  resources:
+                      requests:
+                          memory: "128Mi"
+                          cpu: "100m"
+                      limits:
+                          memory: "256Mi"
+                          cpu: "250m"
+                  livenessProbe:
+                      httpGet:
+                          path: /health
+                          port: 8080
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /health
+                          port: 8080
+                      initialDelaySeconds: 15
+                      periodSeconds: 5
+                      timeoutSeconds: 3
+                      failureThreshold: 2
+            imagePullSecrets:
+                - name: acr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: hrs-inventory-service
+    namespace: inventory
+    labels:
+        app: hrs-inventory-service
+spec:
+    type: ClusterIP
+    ports:
+        - port: 80
+          targetPort: 8080
+          protocol: TCP
+          name: http
+    selector:
+        app: hrs-inventory-service

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRS.API.Controllers;
 
 [ApiController]
-[Route("api/health")]
+[Route("health")]
 public class HealthController : ControllerBase
 {
     [HttpGet]

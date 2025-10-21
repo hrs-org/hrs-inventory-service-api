@@ -23,7 +23,7 @@ public class PackageControllerTests
     {
         // Arrange
         var storeId = "1";
-        var packages = new List<PackageResponseDto> { new() { Id = "1", StoreId = "1"}, new() { Id = "2", StoreId = "2"} };
+        var packages = new List<PackageResponseDto> { new() { Id = "1", StoreId = "1" }, new() { Id = "2", StoreId = "2" } };
         _packageService.GetAllAsync(Arg.Any<string>()).Returns(packages);
 
         // Act
