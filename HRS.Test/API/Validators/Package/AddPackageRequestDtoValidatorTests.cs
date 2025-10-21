@@ -11,7 +11,13 @@ public class AddPackageRequestDtoValidatorTests
     [Fact]
     public void Should_Have_Error_When_Model_Is_Not_Valid()
     {
-        var model = new AddPackageRequestDto { Name = "", Description = "", BasePrice = -1 };
+        var model = new AddPackageRequestDto
+        {
+            Name = "",
+            Description = "",
+            BasePrice = -1,
+            StoreId = "1"
+        };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.Name);
         result.ShouldHaveValidationErrorFor(x => x.BasePrice);
@@ -20,13 +26,17 @@ public class AddPackageRequestDtoValidatorTests
     [Fact]
     public void Should_Have_Error_When_Item_Has_Invalid_Fields()
     {
-        var item = new PackageItemRequestDto { ItemId = 0, Quantity = 0 };
+        var item = new PackageItemRequestDto { ItemId = "", Quantity = 0 };
         var model = new AddPackageRequestDto
         {
             Name = "Test",
             Description = "Desc",
             BasePrice = 10,
-            Items = new List<PackageItemRequestDto> { item }
+            Items = new List<PackageItemRequestDto>
+            {
+                item
+            },
+            StoreId = "1"
         };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor("Items[0].ItemId");
@@ -42,7 +52,11 @@ public class AddPackageRequestDtoValidatorTests
             Name = "Test",
             Description = "Desc",
             BasePrice = 10,
-            Rates = new List<PackageRateRequestDto> { rate }
+            Rates = new List<PackageRateRequestDto>
+            {
+                rate
+            },
+            StoreId = "1"
         };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor("Rates[0].MinDays");
@@ -52,15 +66,22 @@ public class AddPackageRequestDtoValidatorTests
     [Fact]
     public void Should_Not_Have_Error_When_Model_Is_Valid()
     {
-        var item = new PackageItemRequestDto { ItemId = 1, Quantity = 2 };
+        var item = new PackageItemRequestDto { ItemId = "1", Quantity = 2 };
         var rate = new PackageRateRequestDto { MinDays = 1, DailyRate = 10 };
         var model = new AddPackageRequestDto
         {
             Name = "Test",
             Description = "Desc",
             BasePrice = 10,
-            Items = new List<PackageItemRequestDto> { item },
-            Rates = new List<PackageRateRequestDto> { rate }
+            Items = new List<PackageItemRequestDto>
+            {
+                item
+            },
+            Rates = new List<PackageRateRequestDto>
+            {
+                rate
+            },
+            StoreId = "1"
         };
         var result = _validator.TestValidate(model);
         result.ShouldNotHaveAnyValidationErrors();

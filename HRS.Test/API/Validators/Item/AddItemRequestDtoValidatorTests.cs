@@ -31,7 +31,7 @@ public class AddItemRequestDtoValidatorTests
             Quantity = 1,
             Price = 1,
             StoreId = "store1",
-            Children = new List<AddItemRequestDto> { child }
+            Children = new List<ItemRequestDto> { child }
         };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor("Children[0].Name");
@@ -50,7 +50,7 @@ public class AddItemRequestDtoValidatorTests
             Quantity = 1,
             Price = 1,
             StoreId = "store1",
-            Children = new List<AddItemRequestDto> { child }
+            Children = new List<ItemRequestDto> { child }
         };
         var result = _validator.TestValidate(model);
         result.ShouldNotHaveAnyValidationErrors();

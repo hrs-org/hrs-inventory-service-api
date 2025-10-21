@@ -123,19 +123,25 @@ public class ItemControllerTests
         // Arrange
         var updateDto = new UpdateItemRequestDto
         {
-            Id = 10,
+            Id = "10",
             Name = "Tent Updated",
             Description = "Updated tent",
             Quantity = 7,
             Price = 110m,
             Rates = new List<ItemRateRequestDto>
             {
-                new() { MinDays = 1, DailyRate = 22m, IsActive = true }
-            }
+                new()
+                {
+                    MinDays = 1,
+                    DailyRate = 22m,
+                    IsActive = true
+                }
+            },
+            StoreId = "1"
         };
         var updated = new ItemResponseDto
         {
-            Id = 10,
+            Id = "10",
             Name = "Tent Updated",
             Rates = new List<ItemRateResponseDto>
             {
@@ -145,7 +151,7 @@ public class ItemControllerTests
         _itemService.UpdateAsync(updateDto).Returns(updated);
 
         // Act
-        var result = await _controller.UpdateItemAsync(10, updateDto);
+        var result = await _controller.UpdateItemAsync("10", updateDto);
 
         // Assert
         var okResult = result as OkObjectResult;
@@ -153,7 +159,7 @@ public class ItemControllerTests
         var apiResponse = okResult.Value as dynamic;
         ((object)apiResponse?.Data!).Should().BeNull();
         ((string)apiResponse?.Message!).Should().Be("Item updated successfully");
-        updateDto.Id.Should().Be(10);
+        updateDto.Id.Should().Be("10");
         await _itemService.Received(1).UpdateAsync(updateDto);
     }
 

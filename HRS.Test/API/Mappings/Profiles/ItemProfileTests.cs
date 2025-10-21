@@ -4,7 +4,10 @@ using HRS.API.Contracts.DTOs.Item;
 using HRS.API.Mappings.Profiles;
 using HRS.Domain.Entities;
 using HRS.Domain.Enums;
+using HRS.Shared.Core.Dtos;
 using Microsoft.Extensions.Logging;
+using ItemRateResponseDto = HRS.API.Contracts.DTOs.Item.ItemRateResponseDto;
+using ItemResponseDto = HRS.API.Contracts.DTOs.Item.ItemResponseDto;
 
 namespace HRS.Test.API.Mappings.Profiles;
 
@@ -33,22 +36,38 @@ public class ItemProfileTests
             Description = "Camping tent",
             Price = 100,
             Quantity = 5,
-            Children = new List<AddItemRequestDto>
+            Children = new List<ItemRequestDto>
             {
-                new() { Name = "Child Tent", Description = "Small tent", Price = 50, Quantity = 2 }
+                new()
+                {
+                    Name = "Child Tent",
+                    Description = "Small tent",
+                    Price = 50,
+                    Quantity = 2
+                }
             },
             Rates = new List<ItemRateRequestDto>
             {
-                new() { MinDays = 1, DailyRate = 20, IsActive = true },
-                new() { MinDays = 3, DailyRate = 15, IsActive = false }
-            }
+                new()
+                {
+                    MinDays = 1,
+                    DailyRate = 20,
+                    IsActive = true
+                },
+                new()
+                {
+                    MinDays = 3,
+                    DailyRate = 15,
+                    IsActive = false
+                }
+            },
+            StoreId = "1"
         };
 
         // Act
         var item = _mapper.Map<Item>(dto);
 
         // Assert
-        item.Id.Should().Be(0);
         item.ParentId.Should().BeNull();
         item.Name.Should().Be(dto.Name);
         item.Children.Should().HaveCount(1);
@@ -60,23 +79,23 @@ public class ItemProfileTests
     public void Should_Map_Item_To_ItemResponseDto()
     {
         // Arrange
-        var user = new User { Id = 1, FirstName = "Admin", LastName = "User", Email = "r@w.com", Role = UserRole.Admin, PasswordHash = "hashedpassword" };
+        var user = new UserResponseDto { Id = 1, FirstName = "Admin", LastName = "User", Email = "r@w.com", Role = "Admin"};
         var item = new Item
         {
-            Id = 1,
+            Id = "1",
             Name = "Tent",
             Description = "Camping tent",
             Price = 100,
             Quantity = 5,
-            CreatedBy = user,
+            CreatedById = user.Id,
             Children = new List<Item>
             {
-                new() { Id = 2, Name = "Child Tent", Description = "Small tent", Price = 50, Quantity = 2, CreatedBy = user }
+                new() { Id = "2", Name = "Child Tent", Description = "Small tent", Price = 50, Quantity = 2, CreatedById = user.Id }
             },
             Rates = new List<ItemRate>
             {
-                new() { Id = 1, MinDays = 1, DailyRate = 20, IsActive = true },
-                new() { Id = 2, MinDays = 3, DailyRate = 15, IsActive = false }
+                new() { Id = "1", MinDays = 1, DailyRate = 20, IsActive = true },
+                new() { Id = "2", MinDays = 3, DailyRate = 15, IsActive = false }
             }
         };
 
@@ -84,7 +103,7 @@ public class ItemProfileTests
         var dto = _mapper.Map<ItemResponseDto>(item);
 
         // Assert
-        dto.Id.Should().Be(1);
+        dto.Id.Should().Be("1");
         dto.Name.Should().Be("Tent");
         dto.Children.Should().HaveCount(1);
         dto.Children.First().Name.Should().Be("Child Tent");
@@ -110,7 +129,7 @@ public class ItemProfileTests
     public void Should_Map_ItemRate_To_ItemRateResponseDto()
     {
         // Arrange
-        var entity = new ItemRate { Id = 7, MinDays = 2, DailyRate = 55.5m, IsActive = false };
+        var entity = new ItemRate { Id = "7", MinDays = 2, DailyRate = 55.5m, IsActive = false };
 
         // Act
         var dto = _mapper.Map<ItemRateResponseDto>(entity);
