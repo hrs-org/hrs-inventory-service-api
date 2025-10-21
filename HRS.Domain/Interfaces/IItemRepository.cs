@@ -8,4 +8,5 @@ public interface IItemRepository : ICrudRepository<Item>
     Task<Item?> GetParentItemAsync(string childId);
     Task RemoveItem(Item entity);
     Task<IEnumerable<Item>> SearchAsync(string? keyword);
+    Task UpdateChildQuantityAsync(object childId, int quantity);
 }

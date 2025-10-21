@@ -28,6 +28,13 @@ public class PackageController : ControllerBase
         return Ok(ApiResponse<IEnumerable<PackageResponseDto>>.OkResponse(res, "Packages retrieved successfully"));
     }
 
+    [HttpGet("store/{id}")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<PackageResponseDto>>>> GetPackagesAsync(int id)
+    {
+        var items = await _packageService.GetAllAsync(id);
+        return Ok(ApiResponse<IEnumerable<PackageResponseDto>>.OkResponse(items));
+    }
+
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<PackageResponseDto>> GetPackageAsync(string id)

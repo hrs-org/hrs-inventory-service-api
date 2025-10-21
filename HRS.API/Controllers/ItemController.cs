@@ -28,6 +28,13 @@ public class ItemController : ControllerBase
         return Ok(ApiResponse<IEnumerable<ItemResponseDto>>.OkResponse(items));
     }
 
+    [HttpGet("store/{id}")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems(int id)
+    {
+        var items = await _itemService.GetRootItemsAsync(id);
+        return Ok(ApiResponse<IEnumerable<ItemResponseDto>>.OkResponse(items));
+    }
+
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin, Manager")]
     public async Task<ActionResult<ItemResponseDto>> GetItemAsync(string id)
