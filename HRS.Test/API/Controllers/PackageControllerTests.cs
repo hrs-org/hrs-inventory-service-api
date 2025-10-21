@@ -22,11 +22,12 @@ public class PackageControllerTests
     public async Task GetPackagesAsync_ReturnsOkWithList()
     {
         // Arrange
-        var packages = new List<PackageResponseDto> { new() { Id = 1 }, new() { Id = 2 } };
-        _packageService.GetAllAsync().Returns(packages);
+        var storeId = "1";
+        var packages = new List<PackageResponseDto> { new() { Id = "1", StoreId = "1"}, new() { Id = "2", StoreId = "2"} };
+        _packageService.GetAllAsync(Arg.Any<string>()).Returns(packages);
 
         // Act
-        var result = await _controller.GetPackagesAsync();
+        var result = await _controller.GetPackagesAsync(storeId);
 
         // Assert
         var okResult = result.Result as OkObjectResult;
@@ -39,11 +40,11 @@ public class PackageControllerTests
     public async Task GetPackageAsync_ReturnsOkWithPackage()
     {
         // Arrange
-        var package = new PackageResponseDto { Id = 1 };
-        _packageService.GetByIdAsync(1).Returns(package);
+        var package = new PackageResponseDto { Id = "1" };
+        _packageService.GetByIdAsync("1").Returns(package);
 
         // Act
-        var result = await _controller.GetPackageAsync(1);
+        var result = await _controller.GetPackageAsync("1");
 
         // Assert
         var okResult = result.Result as OkObjectResult;
@@ -56,8 +57,13 @@ public class PackageControllerTests
     public async Task CreatePackageAsync_ReturnsOkWithCreatedPackage()
     {
         // Arrange
-        var addDto = new AddPackageRequestDto { Name = "Test Package", Description = "Test Desc" };
-        var created = new PackageResponseDto { Id = 1, Name = "Test Package" };
+        var addDto = new AddPackageRequestDto
+        {
+            Name = "Test Package",
+            Description = "Test Desc",
+            StoreId = "1"
+        };
+        var created = new PackageResponseDto { Id = "1", Name = "Test Package" };
         _packageService.CreateAsync(addDto).Returns(created);
 
         // Act
@@ -75,12 +81,18 @@ public class PackageControllerTests
     public async Task UpdatePackageAsync_ReturnsOkWithUpdatedPackage()
     {
         // Arrange
-        var updateDto = new UpdatePackageRequestDto { Id = 1, Name = "Updated", Description = "Updated Desc" };
-        var updated = new PackageResponseDto { Id = 1, Name = "Updated" };
+        var updateDto = new UpdatePackageRequestDto
+        {
+            Id = "1",
+            Name = "Updated",
+            Description = "Updated Desc",
+            StoreId = "1"
+        };
+        var updated = new PackageResponseDto { Id = "1", Name = "Updated" };
         _packageService.UpdateAsync(updateDto).Returns(updated);
 
         // Act
-        var result = await _controller.UpdatePackageAsync(1, updateDto);
+        var result = await _controller.UpdatePackageAsync("1", updateDto);
 
         // Assert
         var okResult = result as OkObjectResult;
@@ -88,7 +100,7 @@ public class PackageControllerTests
         var apiResponse = okResult.Value as dynamic;
         ((PackageResponseDto)apiResponse?.Data!).Should().BeEquivalentTo(updated);
         ((string)apiResponse?.Message!).Should().Be("Package updated successfully");
-        updateDto.Id.Should().Be(1);
+        updateDto.Id.Should().Be("1");
         await _packageService.Received(1).UpdateAsync(updateDto);
     }
 
@@ -96,16 +108,16 @@ public class PackageControllerTests
     public async Task DeletePackageAsync_ReturnsOkWithApiResponse()
     {
         // Arrange
-        _packageService.DeleteAsync(1).Returns(Task.CompletedTask);
+        _packageService.DeleteAsync("1").Returns(Task.CompletedTask);
 
         // Act
-        var result = await _controller.DeletePackageAsync(1);
+        var result = await _controller.DeletePackageAsync("1");
 
         // Assert
         var okResult = result as OkObjectResult;
         okResult.Should().NotBeNull();
         var apiResponse = okResult.Value as dynamic;
         ((string)apiResponse?.Message!).Should().Be("Package 1 deleted successfully");
-        await _packageService.Received(1).DeleteAsync(1);
+        await _packageService.Received(1).DeleteAsync("1");
     }
 }

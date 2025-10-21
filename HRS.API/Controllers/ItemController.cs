@@ -19,15 +19,15 @@ public class ItemController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult<List<ItemResponseDto>>> GetItemsAsync()
+    public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems([FromQuery] string storeId)
     {
-        var res = await _itemService.GetRootItemsAsync();
-        return Ok(ApiResponse<List<ItemResponseDto>>.OkResponse(res.ToList()));
+        var items = await _itemService.GetRootItemsAsync(storeId);
+        return Ok(ApiResponse<IEnumerable<ItemResponseDto>>.OkResponse(items));
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult<ItemResponseDto>> GetItemAsync(int id)
+    public async Task<ActionResult<ItemResponseDto>> GetItemAsync(string id)
     {
         var res = await _itemService.GetItemAsync(id);
         return Ok(ApiResponse<ItemResponseDto>.OkResponse(res));
@@ -46,18 +46,26 @@ public class ItemController : ControllerBase
         );
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id}")]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult> UpdateItemAsync(int id, [FromBody] UpdateItemRequestDto request)
+    public async Task<ActionResult> UpdateItemAsync(string id, [FromBody] UpdateItemRequestDto request)
     {
         request.Id = id;
         await _itemService.UpdateAsync(request);
         return Ok(ApiResponse<object>.OkResponse(null, "Item updated successfully"));
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpPut("{id}/quantity")]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult> DeleteItemAsync(int id)
+    public async Task<ActionResult> UpdateItemQuantityAsync(string id, [FromQuery] int quantity)
+    {
+        await _itemService.UpdateQuantityAsync(id, quantity);
+        return Ok(ApiResponse<object>.OkResponse(null, "Item quantity updated successfully"));
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin, Manager")]
+    public async Task<ActionResult> DeleteItemAsync(string id)
     {
         await _itemService.DeleteAsync(id);
         return Ok(ApiResponse<object>.OkResponse(null, "Item deleted successfully"));

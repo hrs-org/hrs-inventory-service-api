@@ -7,9 +7,12 @@ public interface ICrudRepository<T> where T : class
     Task<T?> GetByIdAsync(object id);
     Task<IEnumerable<T>> GetAllAsync();
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+
     Task AddAsync(T entity);
     Task AddRangeAsync(IEnumerable<T> entities);
+
     Task UpdateAsync(T entity, object id);
+    Task UpdateQuantityAsync(object id, int quantity);
     Task RemoveAsync(object id);
     Task RemoveRangeAsync(IEnumerable<object> ids);
 }

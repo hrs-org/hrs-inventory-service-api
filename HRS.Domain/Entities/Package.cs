@@ -1,34 +1,54 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using HRS.Shared.Core.Dtos;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace HRS.Domain.Entities;
 
-[Table("Packages")]
 public class Package
 {
-    [Key] public int Id { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-    [Required][MaxLength(150)] public string Name { get; set; } = null!;
+    [BsonElement("name")]
+    [BsonRequired]
+    public string Name { get; set; } = null!;
 
-    [MaxLength(500)] public string? Description { get; set; }
+    [BsonElement("description")]
+    [BsonIgnoreIfNull]
+    public string? Description { get; set; }
 
-    [Required]
-    [Column(TypeName = "decimal(10,2)")]
+    [BsonElement("basePrice")]
+    [BsonRepresentation(BsonType.Decimal128)]
     public decimal BasePrice { get; set; }
 
+    [BsonElement("items")]
     public ICollection<PackageItem> PackageItems { get; set; } = [];
+
+    [BsonElement("rates")]
     public ICollection<PackageRate> PackageRates { get; set; } = [];
 
+    [BsonElement("createdById")]
     public int CreatedById { get; set; }
 
-    [ForeignKey(nameof(CreatedById))] public UserResponseDto? CreatedBy { get; set; }
+    [BsonIgnore]
+    public object? CreatedBy { get; set; }
 
+    [BsonElement("createdAt")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [BsonElement("storeId")]
+    [BsonRequired]
+    public string StoreId { get; set; } = null!;
+
+    [BsonElement("updatedById")]
+    [BsonIgnoreIfNull]
     public int? UpdatedById { get; set; }
 
-    [ForeignKey(nameof(UpdatedById))] public UserResponseDto? UpdatedBy { get; set; }
+    [BsonIgnore]
+    public object? UpdatedBy { get; set; }
 
+    [BsonElement("updatedAt")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

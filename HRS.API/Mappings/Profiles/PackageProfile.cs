@@ -13,6 +13,7 @@ public class PackageProfile : Profile
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.PackageItems, opt => opt.MapFrom(s => s.Items ?? new List<PackageItemRequestDto>()))
             .ForMember(d => d.PackageRates, opt => opt.MapFrom(s => s.Rates ?? new List<PackageRateRequestDto>()))
+            .ForMember(d => d.StoreId, opt => opt.MapFrom(s => s.StoreId))
             .ForMember(d => d.CreatedById, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
@@ -23,6 +24,7 @@ public class PackageProfile : Profile
         CreateMap<UpdatePackageRequestDto, Package>()
             .ForMember(d => d.PackageItems, opt => opt.MapFrom(s => s.Items))
             .ForMember(d => d.PackageRates, opt => opt.MapFrom(s => s.Rates))
+            .ForMember(d => d.StoreId, opt => opt.MapFrom(s => s.StoreId))
             .ForMember(d => d.CreatedById, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
@@ -32,14 +34,10 @@ public class PackageProfile : Profile
 
         CreateMap<PackageItemRequestDto, PackageItem>()
             .ForMember(d => d.Id, opt => opt.Ignore())
-            .ForMember(d => d.PackageId, opt => opt.Ignore())
-            .ForMember(d => d.Package, opt => opt.Ignore())
             .ForMember(d => d.Item, opt => opt.Ignore());
 
         CreateMap<PackageRateRequestDto, PackageRate>()
             .ForMember(d => d.Id, opt => opt.Ignore())
-            .ForMember(d => d.PackageId, opt => opt.Ignore())
-            .ForMember(d => d.Package, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.CreatedById, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())

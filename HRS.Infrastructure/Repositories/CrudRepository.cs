@@ -1,39 +1,82 @@
 using System.Linq.Expressions;
 using HRS.Domain.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace HRS.Infrastructure.Repositories;
 
 public class CrudRepository<T> : ICrudRepository<T> where T : class
 {
+    protected readonly IMongoDatabase _db;
     protected readonly IMongoCollection<T> _collection;
 
-    public CrudRepository(MongoContext context, string collectionName)
+    public CrudRepository(IMongoDatabase db, string collectionName)
     {
-        _collection = context.Database.GetCollection<T>(collectionName);
+        _db = db;
+        _collection = db.GetCollection<T>(collectionName);
     }
 
-    public async Task<T?> GetByIdAsync(object id) =>
-        await _collection.Find(Builders<T>.Filter.Eq("Id", id)).FirstOrDefaultAsync();
+    public virtual async Task<T?> GetByIdAsync(object id)
+    {
+        var objectId = ConvertToObjectId(id);
+        var filter = Builders<T>.Filter.Eq("_id", objectId);
+        return await _collection.Find(filter).FirstOrDefaultAsync();
+    }
 
-    public async Task<IEnumerable<T>> GetAllAsync() =>
-        await _collection.Find(_ => true).ToListAsync();
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await _collection.Find(Builders<T>.Filter.Empty).ToListAsync();
+    }
 
-    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate) =>
-        await _collection.Find(predicate).ToListAsync();
+    public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _collection.Find(predicate).ToListAsync();
+    }
 
-    public async Task AddAsync(T entity) =>
+    public virtual async Task AddAsync(T entity)
+    {
         await _collection.InsertOneAsync(entity);
+    }
 
-    public async Task AddRangeAsync(IEnumerable<T> entities) =>
+    public virtual async Task AddRangeAsync(IEnumerable<T> entities)
+    {
         await _collection.InsertManyAsync(entities);
+    }
 
-    public async Task UpdateAsync(T entity, object id) =>
-        await _collection.ReplaceOneAsync(Builders<T>.Filter.Eq("Id", id), entity);
+    public virtual async Task UpdateAsync(T entity, object id)
+    {
+        var objectId = ConvertToObjectId(id);
+        var filter = Builders<T>.Filter.Eq("_id", objectId);
+        await _collection.ReplaceOneAsync(filter, entity);
+    }
+    public virtual async Task UpdateQuantityAsync(object id, int quantity)
+    {
+        var objectId = ConvertToObjectId(id);
+        var filter = Builders<T>.Filter.Eq("_id", objectId);
+        var update = Builders<T>.Update.Set("Quantity", quantity);
+        await _collection.UpdateOneAsync(filter, update);
+    }
 
-    public async Task RemoveAsync(object id) =>
-        await _collection.DeleteOneAsync(Builders<T>.Filter.Eq("Id", id));
+    public virtual async Task RemoveAsync(object id)
+    {
+        var objectId = ConvertToObjectId(id);
+        var filter = Builders<T>.Filter.Eq("_id", objectId);
+        await _collection.DeleteOneAsync(filter);
+    }
 
-    public async Task RemoveRangeAsync(IEnumerable<object> ids) =>
-        await _collection.DeleteManyAsync(Builders<T>.Filter.In("Id", ids));
+    public virtual async Task RemoveRangeAsync(IEnumerable<object> ids)
+    {
+        var objectIds = ids.Select(ConvertToObjectId);
+        var filter = Builders<T>.Filter.In("_id", objectIds);
+        await _collection.DeleteManyAsync(filter);
+    }
+
+    private static object ConvertToObjectId(object id)
+    {
+        if (id is string strId && ObjectId.TryParse(strId, out var objectId))
+        {
+            return objectId;
+        }
+        return id;
+    }
 }

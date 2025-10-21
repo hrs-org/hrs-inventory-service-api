@@ -1,20 +1,22 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace HRS.Domain.Entities;
 
-[Table("PackageItems")]
+[BsonNoId]
 public class PackageItem
 {
-    [Key] public int Id { get; set; }
+    [BsonId]
+    [BsonElement("id")]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-    [Required] public int PackageId { get; set; }
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string ItemId { get; set; } = ObjectId.GenerateNewId().ToString();
 
-    [ForeignKey(nameof(PackageId))] public Package? Package { get; set; }
+    [BsonIgnore]
+    public Item? Item { get; set; }
 
-    [Required] public int ItemId { get; set; }
-
-    [ForeignKey(nameof(ItemId))] public Item? Item { get; set; }
-
-    [Required] public int Quantity { get; set; } = 1;
+    [BsonElement("quantity")]
+    public int Quantity { get; set; } = 1;
 }

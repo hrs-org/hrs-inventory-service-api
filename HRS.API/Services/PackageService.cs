@@ -11,7 +11,6 @@ public class PackageService : IPackageService
 {
     private const string PackageNotFound = "Package not found";
     private readonly IMapper _mapper;
-    private readonly IPackageRateRepository _packageRateRepository;
 
     private readonly IPackageRepository _packageRepository;
     private readonly IUserContextService _userContextService;
@@ -19,22 +18,20 @@ public class PackageService : IPackageService
     public PackageService(
         IMapper mapper,
         IUserContextService userContextService,
-        IPackageRepository packageRepository,
-        IPackageRateRepository packageRateRepository)
+        IPackageRepository packageRepository)
     {
         _mapper = mapper;
         _userContextService = userContextService;
         _packageRepository = packageRepository;
-        _packageRateRepository = packageRateRepository;
     }
 
-    public async Task<IEnumerable<PackageResponseDto>> GetAllAsync()
+    public async Task<IEnumerable<PackageResponseDto>> GetAllAsync(string storeId)
     {
-        var packages = await _packageRepository.GetAllWithDetailsAsync();
+        var packages = await _packageRepository.GetAllWithDetailsAsync(storeId);
         return _mapper.Map<IEnumerable<PackageResponseDto>>(packages);
     }
 
-    public async Task<PackageResponseDto> GetByIdAsync(int id)
+    public async Task<PackageResponseDto> GetByIdAsync(string id)
     {
         var package = await _packageRepository.GetByIdWithDetailsAsync(id)
                       ?? throw new KeyNotFoundException(PackageNotFound);
@@ -70,14 +67,14 @@ public class PackageService : IPackageService
         package.UpdatedAt = DateTime.UtcNow;
 
         SyncPackageItemsAsync(package, dto.Items);
-        await SyncPackageRatesAsync(package, dto.Rates, user.Id);
+        SyncPackageRatesAsync(package, dto.Rates, user.Id);
 
         await _packageRepository.UpdateAsync(package, package.Id);
 
         return _mapper.Map<PackageResponseDto>(package);
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(string id)
     {
         var package = await _packageRepository.GetByIdAsync(id)
                       ?? throw new KeyNotFoundException(PackageNotFound);
@@ -109,7 +106,6 @@ public class PackageService : IPackageService
             {
                 var newItem = new PackageItem
                 {
-                    PackageId = package.Id,
                     ItemId = dto.ItemId,
                     Quantity = dto.Quantity
                 };
@@ -122,7 +118,7 @@ public class PackageService : IPackageService
             package.PackageItems.Remove(leftover);
     }
 
-    private async Task SyncPackageRatesAsync(Package package, ICollection<PackageRateRequestDto>? rates, int userId)
+    private static void SyncPackageRatesAsync(Package package, ICollection<PackageRateRequestDto>? rates, int userId)
     {
         if (rates == null || rates.Count == 0)
         {
@@ -130,7 +126,7 @@ public class PackageService : IPackageService
             return;
         }
 
-        var existingRates = (await _packageRateRepository.GetRatesByPackageIdAsync(package.Id)).ToList();
+        var existingRates = package.PackageRates.ToList();
 
         foreach (var dto in rates)
         {
@@ -141,20 +137,18 @@ public class PackageService : IPackageService
                 match.IsActive = dto.IsActive;
                 match.UpdatedAt = DateTime.UtcNow;
                 match.UpdatedById = userId;
-                await _packageRateRepository.UpdateAsync(match, match.Id);
             }
             else
             {
                 var newRate = new PackageRate
                 {
-                    PackageId = package.Id,
                     MinDays = dto.MinDays,
                     DailyRate = dto.DailyRate,
                     IsActive = dto.IsActive,
                     CreatedAt = DateTime.UtcNow,
                     CreatedById = userId
                 };
-                await _packageRateRepository.AddAsync(newRate);
+                package.PackageRates.Add(newRate);
             }
         }
 
@@ -163,10 +157,9 @@ public class PackageService : IPackageService
             .Where(r => rates.All(dto => dto.MinDays != r.MinDays))
             .ToList();
 
-        if (toRemove.Count > 0)
+        foreach (var rate in toRemove)
         {
-            var ids = toRemove.Select(r => (object)r.Id);
-            await _packageRateRepository.RemoveRangeAsync(ids);
+            package.PackageRates.Remove(rate);
         }
     }
 
