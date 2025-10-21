@@ -12,10 +12,20 @@ namespace HRS.API.Controllers;
 public class ItemController : ControllerBase
 {
     private readonly IItemService _itemService;
+    private readonly IUserContextService _userContextService;
 
-    public ItemController(IItemService itemService)
+    public ItemController(IItemService itemService, IUserContextService userContextService)
     {
         _itemService = itemService;
+        _userContextService = userContextService;
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin, Manager")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems()
+    {
+        var items = await _itemService.GetRootItemsAsync(_userContextService.GetStoreId());
+        return Ok(ApiResponse<IEnumerable<ItemResponseDto>>.OkResponse(items));
     }
 
     [HttpGet("store/{id}")]
