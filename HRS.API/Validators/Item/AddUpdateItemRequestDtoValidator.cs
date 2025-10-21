@@ -9,9 +9,6 @@ public class AddItemRequestDtoValidator : AbstractValidator<AddItemRequestDto>
     {
         ItemRequestValidatorHelper.AddCommonRules(this);
 
-        RuleFor(x => x.StoreId)
-            .NotEmpty().WithMessage("Store Id is required");
-
         RuleForEach(x => x.Rates)
             .SetValidator(new ItemRateRequestDtoValidator());
 
@@ -57,9 +54,6 @@ public static class ParentItemRequestValidatorHelper
 {
     public static void AddCommonRules<T>(AbstractValidator<T> validator) where T : ParentItemRequestDto
     {
-        validator.RuleFor(x => x.StoreId)
-            .NotEmpty().WithMessage("Store Id is required");
-
         validator.RuleForEach(x => x.Rates)
             .SetValidator(new ItemRateRequestDtoValidator());
     }

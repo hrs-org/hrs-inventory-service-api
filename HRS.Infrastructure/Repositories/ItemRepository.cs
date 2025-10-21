@@ -15,7 +15,7 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
         _collection = context.Database.GetCollection<Item>("Items");
     }
 
-    public async Task<IEnumerable<Item>> GetRootItemsAsync(string storeId)
+    public async Task<IEnumerable<Item>> GetRootItemsAsync(int storeId)
     {
         var filter = Builders<Item>.Filter.And(
             Builders<Item>.Filter.Eq(i => i.StoreId, storeId)

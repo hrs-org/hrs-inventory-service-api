@@ -3,6 +3,7 @@ using HRS.API.Contracts.DTOs.Package;
 using HRS.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using HRS.Shared.Core.Interfaces;
 
 namespace HRS.API.Controllers;
 
@@ -11,17 +12,19 @@ namespace HRS.API.Controllers;
 public class PackageController : ControllerBase
 {
     private readonly IPackageService _packageService;
+    private readonly IUserContextService _userContextService;
 
-    public PackageController(IPackageService packageService)
+    public PackageController(IPackageService packageService, IUserContextService userContextService)
     {
         _packageService = packageService;
+        _userContextService = userContextService;
     }
 
     [HttpGet]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<IEnumerable<PackageResponseDto>>> GetPackagesAsync([FromQuery] string storeId)
+    public async Task<ActionResult<IEnumerable<PackageResponseDto>>> GetPackagesAsync()
     {
-        var res = await _packageService.GetAllAsync(storeId);
+        var res = await _packageService.GetAllAsync(_userContextService.GetStoreId());
         return Ok(ApiResponse<IEnumerable<PackageResponseDto>>.OkResponse(res, "Packages retrieved successfully"));
     }
 

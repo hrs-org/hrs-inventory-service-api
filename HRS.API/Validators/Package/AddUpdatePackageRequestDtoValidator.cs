@@ -30,9 +30,6 @@ public abstract class PackageRequestDtoBaseValidator<T> : AbstractValidator<T> w
         RuleFor(x => x.BasePrice)
             .GreaterThanOrEqualTo(0).WithMessage("Base price must be non-negative");
 
-        RuleFor(x => x.StoreId)
-            .NotEmpty().WithMessage("Store Id is required");
-
         RuleForEach(x => x.Items)
             .SetValidator(new PackageItemRequestDtoValidator());
 

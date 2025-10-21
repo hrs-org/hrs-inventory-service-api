@@ -25,7 +25,7 @@ public class PackageService : IPackageService
         _packageRepository = packageRepository;
     }
 
-    public async Task<IEnumerable<PackageResponseDto>> GetAllAsync(string storeId)
+    public async Task<IEnumerable<PackageResponseDto>> GetAllAsync(int storeId)
     {
         var packages = await _packageRepository.GetAllWithDetailsAsync(storeId);
         return _mapper.Map<IEnumerable<PackageResponseDto>>(packages);
@@ -44,6 +44,7 @@ public class PackageService : IPackageService
         var entity = _mapper.Map<Package>(dto);
         entity.CreatedById = user.Id;
         entity.UpdatedById = user.Id;
+        entity.StoreId = _userContextService.GetStoreId();
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
 

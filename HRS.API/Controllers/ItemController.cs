@@ -3,6 +3,7 @@ using HRS.API.Contracts.DTOs.Item;
 using HRS.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using HRS.Shared.Core.Interfaces;
 
 namespace HRS.API.Controllers;
 
@@ -11,17 +12,19 @@ namespace HRS.API.Controllers;
 public class ItemController : ControllerBase
 {
     private readonly IItemService _itemService;
+    private readonly IUserContextService _userContextService;
 
-    public ItemController(IItemService itemService)
+    public ItemController(IItemService itemService, IUserContextService userContextService)
     {
         _itemService = itemService;
+        _userContextService = userContextService;
     }
 
     [HttpGet]
     [Authorize(Roles = "Admin, Manager")]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems([FromQuery] string storeId)
+    public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems()
     {
-        var items = await _itemService.GetRootItemsAsync(storeId);
+        var items = await _itemService.GetRootItemsAsync(_userContextService.GetStoreId());
         return Ok(ApiResponse<IEnumerable<ItemResponseDto>>.OkResponse(items));
     }
 
