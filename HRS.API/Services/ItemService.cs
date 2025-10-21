@@ -155,8 +155,11 @@ public class ItemService : IItemService
 
     public async Task UpdateQuantityAsync(string id, int quantity)
     {
-        var item = await _itemRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(ItemNotFound);
-        await _itemRepository.UpdateQuantityAsync(id, item.Quantity + quantity);
+        var item = await _itemRepository.GetByIdAsync(id);
+        if (item == null)
+            await _itemRepository.UpdateChildQuantityAsync(id, quantity);
+        else
+            await _itemRepository.UpdateQuantityAsync(id, item.Quantity + quantity);
     }
 
     public async Task DeleteAsync(string id)

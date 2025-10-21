@@ -52,4 +52,13 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
     {
         await _collection.DeleteOneAsync(i => i.Id == entity.Id);
     }
+
+    public async Task UpdateChildQuantityAsync(object childId, int quantity)
+    {
+        var childIdStr = childId.ToString();
+        var filter = Builders<Item>.Filter.ElemMatch(i => i.Children, child => child.Id == childIdStr);
+        var update = Builders<Item>.Update.Inc("children.$.quantity", quantity);
+
+        await _collection.UpdateOneAsync(filter, update);
+    }
 }
