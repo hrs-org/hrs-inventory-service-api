@@ -79,7 +79,7 @@ public class ItemProfileTests
     public void Should_Map_Item_To_ItemResponseDto()
     {
         // Arrange
-        var user = new UserResponseDto { Id = 1, FirstName = "Admin", LastName = "User", Email = "r@w.com", Role = "Admin"};
+        var user = new UserResponseDto { Id = 1, FirstName = "Admin", LastName = "User", Email = "r@w.com", Role = "Admin" };
         var item = new Item
         {
             Id = "1",
