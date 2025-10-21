@@ -39,7 +39,7 @@ public class Package
 
     [BsonElement("storeId")]
     [BsonRequired]
-    public string StoreId { get; set; } = null!;
+    public int StoreId { get; set; }
 
     [BsonElement("updatedById")]
     [BsonIgnoreIfNull]

@@ -27,7 +27,7 @@ public class ItemService : IItemService
         return _mapper.Map<ItemResponseDto>(item);
     }
 
-    public async Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync(string storeId)
+    public async Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync(int storeId)
     {
         var items = await _itemRepository.GetRootItemsAsync(storeId);
         return _mapper.Map<IEnumerable<ItemResponseDto>>(items);
@@ -75,7 +75,7 @@ public class ItemService : IItemService
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedById = user.Id;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.StoreId = dto.StoreId;
+        entity.StoreId = _userContextService.GetStoreId();
 
         ProcessChildren(entity, user.Id);
         ProcessRates(entity, dto.Rates, user.Id);

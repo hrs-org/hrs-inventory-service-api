@@ -4,7 +4,7 @@ namespace HRS.API.Services.Interfaces;
 
 public interface IPackageService
 {
-    Task<IEnumerable<PackageResponseDto>> GetAllAsync(string storeId);
+    Task<IEnumerable<PackageResponseDto>> GetAllAsync(int storeId);
     Task<PackageResponseDto> GetByIdAsync(string id);
     Task<PackageResponseDto> CreateAsync(AddPackageRequestDto dto);
     Task<PackageResponseDto> UpdateAsync(UpdatePackageRequestDto dto);

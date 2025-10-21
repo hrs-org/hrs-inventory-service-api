@@ -5,7 +5,7 @@ namespace HRS.API.Services.Interfaces;
 public interface IItemService
 {
     Task<ItemResponseDto> GetItemAsync(string id);
-    Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync(string storeId);
+    Task<IEnumerable<ItemResponseDto>> GetRootItemsAsync(int storeId);
     Task<ItemResponseDto> CreateAsync(AddItemRequestDto dto);
     Task<ItemResponseDto> UpdateAsync(UpdateItemRequestDto dto);
     Task UpdateQuantityAsync(string id, int quantity);

@@ -26,7 +26,6 @@ public class ItemRateRequestDto
 
 public class ParentItemRequestDto : ItemRequestDto
 {
-    [Required] public required string StoreId { get; set; }
     public ICollection<ItemRateRequestDto>? Rates { get; set; }
 }
 

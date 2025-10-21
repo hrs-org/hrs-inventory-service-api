@@ -13,7 +13,7 @@ public class PackageRepository : CrudRepository<Package>, IPackageRepository
         _collection = context.Database.GetCollection<Package>("Packages");
     }
 
-    public async Task<IEnumerable<Package>> GetAllWithDetailsAsync(string storeId)
+    public async Task<IEnumerable<Package>> GetAllWithDetailsAsync(int storeId)
     {
         var filter = Builders<Package>.Filter.Eq(p => p.StoreId, storeId);
         return await _collection.Find(filter).ToListAsync();

@@ -11,7 +11,7 @@ public class ItemResponseDto
     public ICollection<ItemRateResponseDto>? Rates { get; set; }
     public ICollection<ItemResponseDto>? Children { get; set; }
     public bool HasChildren => Children?.Count > 0;
-    public string StoreId { get; set; } = string.Empty;
+    public int StoreId { get; set; }
 }
 
 public class ItemRateResponseDto
