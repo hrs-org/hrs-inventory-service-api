@@ -43,6 +43,13 @@ public class ItemController : ControllerBase
         return Ok(ApiResponse<ItemResponseDto>.OkResponse(res));
     }
 
+    [HttpGet("{id}/parent")]
+    public async Task<ActionResult<ItemResponseDto>> GetParentItemAsync(string id)
+    {
+        var res = await _itemService.GetParentItemAsync(id);
+        return Ok(ApiResponse<ItemResponseDto>.OkResponse(res));
+    }
+
     [HttpPost]
     [Authorize(Roles = "Admin, Manager")]
     public async Task<ActionResult> CreateItemAsync([FromBody] AddItemRequestDto request)
