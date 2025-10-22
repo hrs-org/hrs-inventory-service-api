@@ -21,9 +21,9 @@ public class ItemService : IItemService
         _itemRepository = itemRepository;
     }
 
-    public async Task<ItemResponseDto> GetItemAsync(string id)
+    public async Task<ItemResponseDto?> GetItemAsync(string id)
     {
-        var item = await _itemRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(ItemNotFound);
+        var item = await _itemRepository.GetByIdAsync(id);
         return _mapper.Map<ItemResponseDto>(item);
     }
 
@@ -174,10 +174,9 @@ public class ItemService : IItemService
         return _mapper.Map<IEnumerable<ItemResponseDto>>(items);
     }
 
-    public async Task<ItemResponseDto> GetParentItemAsync(string childId)
+    public async Task<ItemResponseDto?> GetParentItemAsync(string childId)
     {
-        var parentItem = await _itemRepository.GetParentItemAsync(childId) ??
-            throw new KeyNotFoundException("Parent item not found");
+        var parentItem = await _itemRepository.GetParentItemAsync(childId);
         return _mapper.Map<ItemResponseDto>(parentItem);
     }
 
