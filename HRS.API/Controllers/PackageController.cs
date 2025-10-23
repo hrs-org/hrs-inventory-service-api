@@ -9,6 +9,7 @@ namespace HRS.API.Controllers;
 
 [ApiController]
 [Route("api/packages")]
+[Authorize]
 public class PackageController : ControllerBase
 {
     private readonly IPackageService _packageService;
@@ -36,7 +37,6 @@ public class PackageController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<PackageResponseDto>> GetPackageAsync(string id)
     {
         var res = await _packageService.GetByIdAsync(id);

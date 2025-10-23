@@ -25,10 +25,8 @@ public class ItemRepository : CrudRepository<Item>, IItemRepository
 
     public async Task<Item?> GetParentItemAsync(string childId)
     {
-        var child = await GetByIdAsync(childId);
-        if (child?.ParentId == null) return null;
-
-        return await GetByIdAsync(child.ParentId);
+        var filter = Builders<Item>.Filter.ElemMatch(i => i.Children, child => child.Id == childId);
+        return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<Item>> SearchAsync(string? keyword)

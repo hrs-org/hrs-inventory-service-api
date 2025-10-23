@@ -9,6 +9,7 @@ namespace HRS.API.Controllers;
 
 [ApiController]
 [Route("api/items")]
+[Authorize]
 public class ItemController : ControllerBase
 {
     private readonly IItemService _itemService;
@@ -36,10 +37,16 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin, Manager")]
     public async Task<ActionResult<ItemResponseDto>> GetItemAsync(string id)
     {
         var res = await _itemService.GetItemAsync(id);
+        return Ok(ApiResponse<ItemResponseDto>.OkResponse(res));
+    }
+
+    [HttpGet("{id}/parent")]
+    public async Task<ActionResult<ItemResponseDto>> GetParentItemAsync(string id)
+    {
+        var res = await _itemService.GetParentItemAsync(id);
         return Ok(ApiResponse<ItemResponseDto>.OkResponse(res));
     }
 
