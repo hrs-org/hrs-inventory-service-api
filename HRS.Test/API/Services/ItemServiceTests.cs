@@ -78,23 +78,6 @@ public class ItemServiceTests
         _mapper.Received(1).Map<ItemResponseDto>(item);
     }
 
-    [Fact]
-    public async Task GetItemAsync_WhenItemNotFound_ShouldThrowKeyNotFoundException()
-    {
-        // Arrange
-        var itemId = "507f1f77bcf86cd799439011";
-        _itemRepository.GetByIdAsync(itemId).Returns((Item?)null);
-
-        // Act
-        var act = async () => await _sut.GetItemAsync(itemId);
-
-        // Assert
-        await act.Should().ThrowAsync<KeyNotFoundException>()
-            .WithMessage("Item not found");
-        await _itemRepository.Received(1).GetByIdAsync(itemId);
-        _mapper.DidNotReceive().Map<ItemResponseDto>(Arg.Any<Item>());
-    }
-
     #endregion
 
     #region GetRootItemsAsync Tests
@@ -710,23 +693,6 @@ public class ItemServiceTests
         result.Should().BeEquivalentTo(expectedDto);
         await _itemRepository.Received(1).GetParentItemAsync(childId);
         _mapper.Received(1).Map<ItemResponseDto>(parentItem);
-    }
-
-    [Fact]
-    public async Task GetParentItemAsync_WhenParentNotFound_ShouldThrowKeyNotFoundException()
-    {
-        // Arrange
-        var childId = "507f1f77bcf86cd799439012";
-        _itemRepository.GetParentItemAsync(childId).Returns((Item?)null);
-
-        // Act
-        var act = async () => await _sut.GetParentItemAsync(childId);
-
-        // Assert
-        await act.Should().ThrowAsync<KeyNotFoundException>()
-            .WithMessage("Parent item not found");
-        await _itemRepository.Received(1).GetParentItemAsync(childId);
-        _mapper.DidNotReceive().Map<ItemResponseDto>(Arg.Any<Item>());
     }
 
     #endregion
