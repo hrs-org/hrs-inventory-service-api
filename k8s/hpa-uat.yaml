@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
     name: hrs-inventory-service-hpa
-    namespace: inventory
+    namespace: uat
 spec:
     scaleTargetRef:
         apiVersion: apps/v1
