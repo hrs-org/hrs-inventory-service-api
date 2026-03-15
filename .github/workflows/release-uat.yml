@@ -16,11 +16,6 @@ on:
                 options:
                     - uat
 
-permissions:
-    contents: read
-    actions: read
-    id-token: write
-
 env:
     AZURE_RESOURCE_GROUP: rg-hrsm-uat
     AKS_CLUSTER_NAME: hrsm-uat-aks
@@ -33,6 +28,8 @@ jobs:
         name: Deploy to AKS ${{ github.event.inputs.environment }}
         runs-on: ubuntu-latest
         environment: ${{ github.event.inputs.environment }}
+        permissions:
+            contents: read
 
         steps:
             - name: Checkout code
@@ -283,6 +280,7 @@ jobs:
         needs: deploy-to-aks
         if: failure()
         environment: ${{ github.event.inputs.environment }}
+        permissions: {}
         steps:
             - name: Set up Azure CLI
               uses: azure/login@v1
