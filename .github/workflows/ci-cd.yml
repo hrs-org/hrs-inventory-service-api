@@ -59,11 +59,11 @@ jobs:
               run: |
                   dotnet-coverage collect "dotnet test HRS.Test/HRS.Test.csproj --configuration Release --no-build --verbosity normal" \
                     -f xml -o "./coverage/coverage.xml"
-                    
+
                   dotnet test HRS.Test/HRS.Test.csproj --configuration Release --no-build \
                     --logger "trx;LogFileName=TestResults.trx" \
                     --results-directory ./coverage
-                    
+
                   ls -la ./coverage/
 
             - name: Upload test results
@@ -273,7 +273,8 @@ jobs:
                   push: true
                   build-args: |
                       VERSION=${{ steps.version.outputs.version }}
-                      GITHUB_TOKEN=${{ secrets.PACKAGES_READ_TOKEN }}
+                  secrets: |
+                      github_packages_token=${{ secrets.PACKAGES_READ_TOKEN }}
                   tags: |
                       ${{ secrets.ACR_NAME }}.azurecr.io/hrs-inventory-service:${{ steps.version.outputs.image-tag }}
                       ${{ secrets.ACR_NAME }}.azurecr.io/hrs-inventory-service:latest

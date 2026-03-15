@@ -24,7 +24,7 @@ permissions:
 env:
     AZURE_RESOURCE_GROUP: rg-hrsm-uat
     AKS_CLUSTER_NAME: hrsm-uat-aks
-    NAMESPACE: inventory
+    NAMESPACE: uat
     DEPLOYMENT_NAME: hrs-inventory-service
     SERVICE_NAME: hrs-inventory-service
 
@@ -91,23 +91,60 @@ jobs:
                     exit 1
                   fi
 
-            - name: Prepare deployment manifest
+            - name: Validate deployment secrets
+              env:
+                  MONGODB_ROOT_PASSWORD: ${{ secrets.MONGODB_ROOT_PASSWORD }}
+                  MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
               run: |
-                  echo "Preparing deployment manifest with secrets..."
+                  missing=0
+
+                  for name in MONGODB_ROOT_PASSWORD MONGODB_CONNECTION_STRING JWT_SECRET_KEY; do
+                    if [ -z "${!name}" ]; then
+                      echo "❌ Missing required GitHub secret: $name"
+                      missing=1
+                    fi
+                  done
+
+                  if [ "$missing" -ne 0 ]; then
+                    exit 1
+                  fi
+
+            - name: Prepare deployment manifests
+              run: |
+                  echo "Preparing deployment manifests with GitHub secrets..."
+
+                  sed "s|__MONGODB_ROOT_USERNAME__|${{ secrets.MONGODB_ROOT_USERNAME || 'admin' }}|g" k8s/mongodb-statefulset.yaml | \
+                  sed "s|__MONGODB_ROOT_PASSWORD__|${{ secrets.MONGODB_ROOT_PASSWORD }}|g" | \
+                  sed "s|__MONGODB_CONNECTION_STRING__|${{ secrets.MONGODB_CONNECTION_STRING }}|g" \
+                  > k8s/mongodb-statefulset-final.yaml
 
                   # Replace placeholders in the deployment file
                   sed "s|__ACR_NAME__|${{ secrets.ACR_NAME }}|g" k8s/deployment-uat.yaml | \
                   sed "s|__IMAGE_TAG__|${{ github.event.inputs.version }}|g" | \
-                  sed "s|__MONGODB_CONNECTION_STRING__|${{ secrets.MONGODB_CONNECTION_STRING || 'mongodb://admin:password@mongodb-inventory.uat.svc.cluster.local:27017' }}|g" | \
+                  sed "s|__MONGODB_CONNECTION_STRING__|${{ secrets.MONGODB_CONNECTION_STRING }}|g" | \
                   sed "s|__JWT_ISSUER__|${{ secrets.JWT_ISSUER || 'HRSApp' }}|g" | \
                   sed "s|__JWT_AUDIENCE__|${{ secrets.JWT_AUDIENCE || 'HRSUsers' }}|g" | \
                   sed "s|__JWT_SECRET_KEY__|${{ secrets.JWT_SECRET_KEY }}|g" | \
                   sed "s|__ALLOWED_ORIGINS__|${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}|g" \
                   > k8s/deployment-final.yaml
 
-                  # Show the final manifest for debugging (mask sensitive values)
                   echo "=== Final Deployment Manifest (sensitive values masked) ==="
                   cat k8s/deployment-final.yaml | grep -v "MONGODB_CONNECTION_STRING" | grep -v "JWT_SECRET_KEY" || cat k8s/deployment-final.yaml
+
+                  echo "=== Final MongoDB Manifest (sensitive values masked) ==="
+                  cat k8s/mongodb-statefulset-final.yaml | grep -v "mongodb-root-password" | grep -v "mongodb-connection-string" || cat k8s/mongodb-statefulset-final.yaml
+
+            - name: Ensure MongoDB exists
+              run: |
+                  echo "Checking MongoDB resources..."
+
+                  if kubectl get secret/mongodb-inventory-secret service/mongodb-inventory statefulset.apps/mongodb-inventory -n ${{ env.NAMESPACE }} >/dev/null 2>&1; then
+                    echo "MongoDB resources already exist. Skipping MongoDB apply."
+                  else
+                    echo "MongoDB resources are missing. Creating MongoDB resources..."
+                    kubectl apply -f k8s/mongodb-statefulset-final.yaml
+                  fi
 
             - name: Deploy to AKS
               run: |
