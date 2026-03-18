@@ -15,6 +15,7 @@ spec:
             labels:
                 app: hrs-inventory-service
         spec:
+            serviceAccountName: hrs-inventory-service-sa
             # SNYK-CC-K8S-6: Add security context at pod level
             securityContext:
                 runAsNonRoot: true
