@@ -269,7 +269,10 @@ jobs:
                   ignore-unfixed: true
 
             - name: Build Docker Image
-              run: docker build -t my-app:latest -f ./Dockerfile .
+              env:
+                  DOCKER_BUILDKIT: 1
+                  PACKAGES_READ_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+              run: docker build --secret id=github_packages_token,env=PACKAGES_READ_TOKEN -t my-app:latest -f ./Dockerfile .
 
             - name: Run Trivy Image Scan
               uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561
