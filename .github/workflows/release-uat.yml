@@ -417,7 +417,7 @@ jobs:
                   echo "| **Service** | Inventory Service |" >> $GITHUB_STEP_SUMMARY
                   echo "| **Environment** | \`${{ github.event.inputs.environment }}\` |" >> $GITHUB_STEP_SUMMARY
                   echo "| **Namespace** | \`${{ env.NAMESPACE }}\` |" >> $GITHUB_STEP_SUMMARY
-                  echo "| **Endpoint** | \`"${BASE_URL%/}"\` |" >> $GITHUB_STEP_SUMMARY
+                  echo "| **Endpoint** | \`${BASE_URL%/}\` |" >> $GITHUB_STEP_SUMMARY
                   echo "| **Checks** | API health + MongoDB readiness + MongoDB ping |" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
 
