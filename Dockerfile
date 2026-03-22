@@ -7,7 +7,6 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 ARG USE_LOCAL_NUGET=false
-ARG GITHUB_TOKEN
 WORKDIR /app
 
 # Optionally use a local NuGet feed when explicitly enabled for local builds.
