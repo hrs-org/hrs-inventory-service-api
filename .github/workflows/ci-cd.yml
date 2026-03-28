@@ -321,7 +321,7 @@ jobs:
             - name: Run Docker image locally
               env:
                   MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
-                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY || 'pre-dast-jwt-secret-key-12345678901234567890' }}
                   ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}
               run: |
                   echo "Starting container..."
@@ -508,7 +508,7 @@ jobs:
               env:
                   IMAGE_TAG: ${{ needs.docker-build.outputs.image-tag }}
                   MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
-                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY || 'pre-dast-jwt-secret-key-12345678901234567890' }}
                   ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}
               run: |
                   az acr login --name ${{ secrets.ACR_NAME }}
