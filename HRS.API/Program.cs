@@ -108,7 +108,11 @@ var app = builder.Build();
 app.UseSwagger();
 if (app.Environment.IsDevelopment()) app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+var httpsPort = Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT");
+if (!string.IsNullOrWhiteSpace(httpsPort))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowWebClient");
