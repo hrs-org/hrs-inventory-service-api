@@ -115,6 +115,11 @@ app.UseCors("AllowWebClient");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/", () => Results.Ok(new { service = "hrs-inventory-service", status = "ok" }));
+app.MapGet("/favicon.ico", () => Results.NoContent());
+app.MapGet("/robots.txt", () => Results.Text("User-agent: *\nDisallow:", "text/plain"));
+app.MapGet("/sitemap.xml", () => Results.Text("<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>", "application/xml"));
+
 app.MapControllers();
 
 app.Run();

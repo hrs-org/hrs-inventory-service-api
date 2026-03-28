@@ -211,7 +211,7 @@ jobs:
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: security-scan-results
+                  name: security-scan(SCA)-results
                   path: security-audit.txt
                   retention-days: 7
     secret-scan:
@@ -319,15 +319,19 @@ jobs:
               run: docker build --secret id=github_packages_token,env=PACKAGES_READ_TOKEN -t pre-dast-inventory-service:latest -f ./Dockerfile .
 
             - name: Run Docker image locally
+              env:
+                  MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+                  ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}
               run: |
                   echo "Starting container..."
                   docker run -d -p 8080:8080 --name pre-dast-inventory-service \
                     -e ASPNETCORE_ENVIRONMENT=Production \
-                    -e ConnectionStrings__MongoDb="${{ secrets.MONGODB_CONNECTION_STRING }}" \
-                    -e Jwt__Key="${{ secrets.JWT_SECRET_KEY }}" \
+                    -e ConnectionStrings__MongoDb="$MONGODB_CONNECTION_STRING" \
+                    -e Jwt__Key="$JWT_SECRET_KEY" \
                     -e Jwt__Issuer="HRSApp" \
                     -e Jwt__Audience="HRSUsers" \
-                    -e AllowedOrigins="${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}" \
+                    -e AllowedOrigins="$ALLOWED_ORIGINS" \
                     pre-dast-inventory-service:latest
 
                   echo "Waiting for application to start..."
@@ -351,6 +355,16 @@ jobs:
 
                   echo "Testing health endpoint:"
                   curl -f http://localhost:8080/health || echo "Health endpoint not available"
+
+                  echo "Verifying common probe paths do not return 5xx..."
+                  for path in / /favicon.ico /robots.txt /sitemap.xml; do
+                    code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080${path}")
+                    echo "${path} -> ${code}"
+                    if [[ "$code" =~ ^5 ]]; then
+                      echo "Endpoint ${path} returned ${code}"
+                      exit 1
+                    fi
+                  done
 
             - name: OWASP ZAP Baseline Scan
               uses: zaproxy/action-baseline@99b9334bed0a0ff8d797764e76c9ecae53168436 # v0.10.0
@@ -493,6 +507,9 @@ jobs:
             - name: Pull and run Docker image
               env:
                   IMAGE_TAG: ${{ needs.docker-build.outputs.image-tag }}
+                  MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+                  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+                  ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}
               run: |
                   az acr login --name ${{ secrets.ACR_NAME }}
 
@@ -510,11 +527,11 @@ jobs:
                   echo "Starting container..."
                   docker run -d -p 5000:8080 --name hrs-inventory-service \
                     -e ASPNETCORE_ENVIRONMENT=Production \
-                    -e ConnectionStrings__MongoDb="${{ secrets.MONGODB_CONNECTION_STRING }}" \
-                    -e Jwt__Key="${{ secrets.JWT_SECRET_KEY }}" \
+                    -e ConnectionStrings__MongoDb="$MONGODB_CONNECTION_STRING" \
+                    -e Jwt__Key="$JWT_SECRET_KEY" \
                     -e Jwt__Issuer="HRSApp" \
                     -e Jwt__Audience="HRSUsers" \
-                    -e AllowedOrigins="${{ secrets.ALLOWED_ORIGINS || 'http://localhost:4200' }}" \
+                    -e AllowedOrigins="$ALLOWED_ORIGINS" \
                     ${{ secrets.ACR_NAME }}.azurecr.io/hrs-inventory-service:${IMAGE_TAG}
 
                   echo "Waiting for application to start..."
@@ -528,6 +545,16 @@ jobs:
 
                   echo "Testing health endpoint:"
                   curl -f http://localhost:5000/health || echo "Health endpoint not available"
+
+                  echo "Verifying common probe paths do not return 5xx..."
+                  for path in / /favicon.ico /robots.txt /sitemap.xml; do
+                    code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:5000${path}")
+                    echo "${path} -> ${code}"
+                    if [[ "$code" =~ ^5 ]]; then
+                      echo "Endpoint ${path} returned ${code}"
+                      exit 1
+                    fi
+                  done
 
             - name: OWASP ZAP Baseline Scan
               uses: zaproxy/action-baseline@99b9334bed0a0ff8d797764e76c9ecae53168436 # v0.10.0
