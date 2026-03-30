@@ -9,7 +9,6 @@ namespace HRS.API.Controllers;
 
 [ApiController]
 [Route("api/packages")]
-[Authorize]
 public class PackageController : ControllerBase
 {
     private readonly IPackageService _packageService;
@@ -22,7 +21,7 @@ public class PackageController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Policy = "read:packages")]
     public async Task<ActionResult<IEnumerable<PackageResponseDto>>> GetPackagesAsync()
     {
         var res = await _packageService.GetAllAsync(_userContextService.GetStoreId());
@@ -30,6 +29,7 @@ public class PackageController : ControllerBase
     }
 
     [HttpGet("store/{id}")]
+    [Authorize(Policy = "read:packages")]
     public async Task<ActionResult<ApiResponse<IEnumerable<PackageResponseDto>>>> GetPackagesAsync(int id)
     {
         var items = await _packageService.GetAllAsync(id);
@@ -37,6 +37,7 @@ public class PackageController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "read:packages")]
     public async Task<ActionResult<PackageResponseDto>> GetPackageAsync(string id)
     {
         var res = await _packageService.GetByIdAsync(id);
@@ -44,7 +45,7 @@ public class PackageController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Policy = "write:packages")]
     public async Task<ActionResult<ApiResponse<PackageResponseDto>>> CreatePackageAsync([FromBody] AddPackageRequestDto request)
     {
         var created = await _packageService.CreateAsync(request);
@@ -52,7 +53,7 @@ public class PackageController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Policy = "update:packages")]
     public async Task<ActionResult> UpdatePackageAsync(string id, [FromBody] UpdatePackageRequestDto request)
     {
         request.Id = id;
@@ -61,7 +62,7 @@ public class PackageController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Policy = "delete:packages")]
     public async Task<ActionResult> DeletePackageAsync(string id)
     {
         await _packageService.DeleteAsync(id);

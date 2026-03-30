@@ -9,7 +9,6 @@ namespace HRS.API.Controllers;
 
 [ApiController]
 [Route("api/items")]
-[Authorize]
 public class ItemController : ControllerBase
 {
     private readonly IItemService _itemService;
@@ -22,7 +21,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Policy = "read:item")]
     public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems()
     {
         var items = await _itemService.GetRootItemsAsync(_userContextService.GetStoreId());
@@ -30,6 +29,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("store/{id}")]
+    [Authorize(Policy = "read:item")]
     public async Task<ActionResult<ApiResponse<IEnumerable<ItemResponseDto>>>> GetRootItems(int id)
     {
         var items = await _itemService.GetRootItemsAsync(id);
@@ -37,6 +37,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "read:item")]
     public async Task<ActionResult<ItemResponseDto>> GetItemAsync(string id)
     {
         var res = await _itemService.GetItemAsync(id);
@@ -44,6 +45,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("{id}/parent")]
+    [Authorize(Policy = "read:item")]
     public async Task<ActionResult<ItemResponseDto>> GetParentItemAsync(string id)
     {
         var res = await _itemService.GetParentItemAsync(id);
@@ -51,7 +53,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Policy = "write:item")]
     public async Task<ActionResult> CreateItemAsync([FromBody] AddItemRequestDto request)
     {
         var createdItem = await _itemService.CreateAsync(request);
@@ -64,7 +66,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Policy = "update:item")]
     public async Task<ActionResult> UpdateItemAsync(string id, [FromBody] UpdateItemRequestDto request)
     {
         request.Id = id;
@@ -73,7 +75,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpPut("{id}/quantity")]
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Policy = "update:item")]
     public async Task<ActionResult> UpdateItemQuantityAsync(string id, [FromQuery] int quantity)
     {
         await _itemService.UpdateQuantityAsync(id, quantity);
@@ -81,7 +83,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Policy = "delete:item")]
     public async Task<ActionResult> DeleteItemAsync(string id)
     {
         await _itemService.DeleteAsync(id);
@@ -89,7 +91,7 @@ public class ItemController : ControllerBase
     }
 
     [HttpGet("search")]
-    [AllowAnonymous]
+    [Authorize(Policy = "read:item")]
     public async Task<ActionResult<List<ItemResponseDto>>> SearchItemsAsync([FromQuery] string? keyword)
     {
         var res = await _itemService.SearchItemsAsync(keyword);

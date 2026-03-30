@@ -20,10 +20,7 @@ public class UserContextService : IUserContextService
 
     public int GetUserId()
     {
-        var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                         ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value
-                         ?? _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
-
+        var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
         return int.TryParse(userIdClaim, out var userId) ? userId : 0;
     }
 
@@ -34,6 +31,7 @@ public class UserContextService : IUserContextService
         {
             throw new UnauthorizedAccessException("Valid Store ID not found in user claims");
         }
+
         return storeId;
     }
 
