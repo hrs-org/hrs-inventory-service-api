@@ -178,12 +178,68 @@ var app = builder.Build();
 app.UseSwagger();
 if (app.Environment.IsDevelopment()) app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+var httpsPort = Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT");
+if (!string.IsNullOrWhiteSpace(httpsPort))
+{
+    app.UseHttpsRedirection();
+}
+
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        var headers = context.Response.Headers;
+
+        if (!headers.ContainsKey("Cross-Origin-Embedder-Policy"))
+        {
+            headers["Cross-Origin-Embedder-Policy"] = "require-corp";
+        }
+
+        if (!headers.ContainsKey("Cross-Origin-Opener-Policy"))
+        {
+            headers["Cross-Origin-Opener-Policy"] = "same-origin";
+        }
+
+        if (!headers.ContainsKey("Cross-Origin-Resource-Policy"))
+        {
+            headers["Cross-Origin-Resource-Policy"] = "same-origin";
+        }
+
+        if (!headers.ContainsKey("X-Content-Type-Options"))
+        {
+            headers["X-Content-Type-Options"] = "nosniff";
+        }
+
+        if (!headers.ContainsKey("Cache-Control"))
+        {
+            headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private";
+        }
+
+        if (!headers.ContainsKey("Pragma"))
+        {
+            headers["Pragma"] = "no-cache";
+        }
+
+        if (!headers.ContainsKey("Expires"))
+        {
+            headers["Expires"] = "0";
+        }
+
+        return Task.CompletedTask;
+    });
+
+    await next();
+});
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowWebClient");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/", () => Results.Ok(new { service = "hrs-inventory-service", status = "ok" }));
+app.MapGet("/favicon.ico", () => Results.NoContent());
+app.MapGet("/robots.txt", () => Results.Text("User-agent: *\nDisallow:", "text/plain"));
+app.MapGet("/sitemap.xml", () => Results.Text("<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>", "application/xml"));
 
 app.MapControllers();
 
