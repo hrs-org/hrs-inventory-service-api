@@ -533,9 +533,8 @@ jobs:
                   docker run -d -p 5000:8080 --name hrs-inventory-service \
                     -e ASPNETCORE_ENVIRONMENT=Production \
                     -e ConnectionStrings__MongoDb="$MONGODB_CONNECTION_STRING" \
-                    -e Jwt__Key="$JWT_SECRET_KEY" \
-                    -e Jwt__Issuer="HRSApp" \
-                    -e Jwt__Audience="HRSUsers" \
+                    -e Auth0__Domain="$AUTH0_DOMAIN" \
+                    -e Auth0__Audience="${{ secrets.AUTH0_AUDIENCE }}" \
                     -e AllowedOrigins="$ALLOWED_ORIGINS" \
                     ${{ secrets.ACR_NAME }}.azurecr.io/hrs-inventory-service:${IMAGE_TAG}
 
