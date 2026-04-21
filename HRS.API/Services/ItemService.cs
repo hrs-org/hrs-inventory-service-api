@@ -96,6 +96,7 @@ public class ItemService : IItemService
         item.Price = dto.Price;
         item.UpdatedAt = DateTime.UtcNow;
         item.UpdatedById = user.Id;
+        item.Quantity = dto.Quantity;
         if (dto.Children != null)
         {
             var existingChildDict = dto.Children.Where(c => c.Id is not null)
