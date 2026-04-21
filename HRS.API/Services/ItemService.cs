@@ -97,7 +97,7 @@ public class ItemService : IItemService
         item.UpdatedAt = DateTime.UtcNow;
         item.UpdatedById = user.Id;
         item.Quantity = dto.Quantity;
-        if (dto.Children != null)
+        if (dto.Children != null && dto.Children.Count > 0)
         {
             var existingChildDict = dto.Children.Where(c => c.Id is not null)
                 .ToDictionary(c => c.Id!);
@@ -136,7 +136,7 @@ public class ItemService : IItemService
                 };
                 item.Children.Add(newChild);
             }
-            item.Quantity = item.Children.Count > 0 ? item.Children.Sum(c => c.Quantity) : 0;
+            item.Quantity = item.Children.Sum(c => c.Quantity);
         }
         if (dto.Rates != null && dto.Rates.Count > 0)
         {
